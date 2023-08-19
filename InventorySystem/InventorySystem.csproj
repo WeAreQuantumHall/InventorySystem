@@ -7,6 +7,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\InventorySystem.Abstractions\InventorySystem.Abstractions.csproj" />
+
     </ItemGroup>
+
+
+
 
 </Project>
