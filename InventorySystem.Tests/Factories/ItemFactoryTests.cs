@@ -3,7 +3,7 @@ using InventorySystem.Abstractions;
 using InventorySystem.Factories;
 using Xunit;
 
-namespace InventorySystem.Tests;
+namespace InventorySystem.Tests.Factories;
 
 public class ItemFactoryTests
 {
@@ -16,7 +16,7 @@ public class ItemFactoryTests
         const int currentAmount = 0;
         const int maxAmount = 0;
 
-        var returnedItem = ItemFactory.CreateItem(name, identifier);
+        var returnedItem = ItemFactory.CreateItem(identifier, name);
 
         Assert.Multiple(
             () => Assert.IsAssignableFrom<IItem>(returnedItem),
@@ -24,8 +24,8 @@ public class ItemFactoryTests
             () => Assert.Equal(name, returnedItem.Name),
             () => Assert.Equal(identifier, returnedItem.Identifier),
             () => Assert.Equal(stackable, returnedItem.Stackable),
-            () => Assert.Equal(currentAmount, returnedItem.CurrentAmount),
-            () => Assert.Equal(maxAmount, returnedItem.MaxAmount));
+            () => Assert.Equal(currentAmount, returnedItem.Stack),
+            () => Assert.Equal(maxAmount, returnedItem.MaxStack));
     }
     
     [Fact]
@@ -37,7 +37,7 @@ public class ItemFactoryTests
         const int currentAmount = 0;
         const int maxAmount = 99;
 
-        var returnedItem = ItemFactory.CreateStackableItem(name, identifier, stackable, currentAmount, maxAmount);
+        var returnedItem = ItemFactory.CreateStackableItem(identifier, name, stackable, currentAmount, maxAmount);
 
         Assert.Multiple(
             () => Assert.IsAssignableFrom<IItem>(returnedItem),
@@ -45,7 +45,7 @@ public class ItemFactoryTests
             () => Assert.Equal(name, returnedItem.Name),
             () => Assert.Equal(identifier, returnedItem.Identifier),
             () => Assert.Equal(stackable, returnedItem.Stackable),
-            () => Assert.Equal(currentAmount, returnedItem.CurrentAmount),
-            () => Assert.Equal(maxAmount, returnedItem.MaxAmount));
+            () => Assert.Equal(currentAmount, returnedItem.Stack),
+            () => Assert.Equal(maxAmount, returnedItem.MaxStack));
     }
 }

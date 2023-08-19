@@ -26,4 +26,10 @@
       <ProjectReference Include="..\InventorySystem\InventorySystem.csproj" />
     </ItemGroup>
 
+
+
+    <ItemGroup>
+      <Folder Include="InventoryTests\" />
+    </ItemGroup>
+
 </Project>
