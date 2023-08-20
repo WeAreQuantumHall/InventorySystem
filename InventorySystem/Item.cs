@@ -62,6 +62,7 @@ namespace InventorySystem
             return 0;
         }
         
+        /// <inheritdoc />
         public IItem SplitStack(int splitAmount)
         {
             if (!Stackable || Stack == 1 || splitAmount >= Stack) return this;
@@ -75,7 +76,6 @@ namespace InventorySystem
             Stack -= splitAmount;
 
             return splitItem;
-
         }
     }
 }

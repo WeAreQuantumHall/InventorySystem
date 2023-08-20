@@ -1,7 +1,6 @@
-﻿using InventorySystem.Abstractions;
-using InventorySystem.Abstractions.Enums;
+﻿using InventorySystem.Abstractions.Enums;
 
-namespace InventorySystem.ActionResults
+namespace InventorySystem.Abstractions
 {
     /// <summary>
     /// Represents the result of an inventory action, along with an optional associated item.

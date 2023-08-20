@@ -24,6 +24,16 @@
         /// The requested item was not found in the inventory.
         /// </summary>
         ItemNotFound,
+        
+        /// <summary>
+        /// An item was successfully removed from the inventory.
+        /// </summary>
+        ItemRemoved,
+        
+        /// <summary>
+        /// An item was not successfully removed from the inventory.
+        /// </summary>
+        ItemNotRemoved,
 
         /// <summary>
         /// An item was successfully stacked onto another item in the inventory.

@@ -60,7 +60,6 @@ namespace InventorySystem.Abstractions
         /// </summary>
         /// <param name="splitAmount">The stack amount of the new item.</param>
         /// <returns>The new item with requested stack amount.</returns>
-
         IItem SplitStack(int splitAmount);
     }
 }

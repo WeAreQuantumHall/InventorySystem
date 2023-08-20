@@ -61,6 +61,14 @@ namespace InventorySystem
 
             return new InventoryActionResult(ItemStackSplit, splitItem);
         }
+
+        /// <inheritdoc />
+        public IInventoryActionResult TryRemoveItem(Guid id)
+        {
+            return Items.Remove(id, out var removedItem)
+                ? new InventoryActionResult(ItemRemoved, removedItem) 
+                : new InventoryActionResult(ItemNotRemoved); 
+        }
         
         private InventoryActionResult AddItem(IItem item)
             => Items.TryAdd(item.Id, item)
