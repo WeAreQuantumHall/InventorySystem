@@ -1,5 +1,4 @@
 ﻿using System;
-using InventorySystem.ActionResults;
 
 namespace InventorySystem.Abstractions
 {
@@ -25,14 +24,14 @@ namespace InventorySystem.Abstractions
         /// Tries to add an item to the inventory.
         /// </summary>
         /// <param name="item">The item to add.</param>
-        /// <returns>An <see cref="InventoryActionResult"/> indicating the result of the add operation.</returns>
+        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the add operation.</returns>
         IInventoryActionResult TryAddItem(IItem item);
 
         /// <summary>
         /// Tries to retrieve an item from the inventory by its Id.
         /// </summary>
         /// <param name="id">The Id of the item to retrieve.</param>
-        /// <returns>An <see cref="InventoryActionResult"/> indicating the result of the retrieval operation.</returns>
+        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieval operation.</returns>
         IInventoryActionResult TryGetItem(Guid id);
 
         /// <summary>
@@ -40,7 +39,14 @@ namespace InventorySystem.Abstractions
         /// </summary>
         /// <param name="id">The Id of the item to split.</param>
         /// <param name="splitAmount">The amount to split from the stack.</param>
-        /// <returns>An <see cref="InventoryActionResult"/> indicating the result of the stack split operation.</returns>
+        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the stack split operation.</returns>
         IInventoryActionResult TrySplitItemStack(Guid id, int splitAmount);
+
+        /// <summary>
+        /// Tries to remove an item from the inventory.
+        /// </summary>
+        /// <param name="id">The Id of the item to remove.</param>
+        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the remove operation.</returns>
+        IInventoryActionResult TryRemoveItem(Guid id);
     }
 }

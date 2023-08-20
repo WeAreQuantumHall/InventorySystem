@@ -16,7 +16,7 @@ public class InventoryTests
     [Fact]
     public void New__CreatesCorrectlyPopulatedValues()
     {
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         
         Assert.NotEqual(Guid.Empty, inventory.Id);
         Assert.Equal(InventoryName, inventory.Name);
@@ -26,7 +26,7 @@ public class InventoryTests
     public void SetName__CorrectlySetsName()
     {
         const string newInventoryName = "TEST_NAME_NEW";
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         
         inventory.SetName(newInventoryName);
         
@@ -45,7 +45,7 @@ public class InventoryTests
             .SetupGet(item => item.Stackable)
             .Returns(false);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedGetActionResult = new InventoryActionResult(ItemRetrieved, itemToGet.Object);
 
         inventory.TryAddItem(itemToGet.Object);
@@ -59,7 +59,7 @@ public class InventoryTests
     public void TryGetItem_when_ItemIsNotPresent__ReturnsExpectedActionResult_with_NoItem()
     {
         var id = Guid.NewGuid();
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedGetActionResult = new InventoryActionResult(ItemNotFound);
         
         var getActionResult = inventory.TryGetItem(id);
@@ -79,7 +79,7 @@ public class InventoryTests
             .SetupGet(item => item.Stackable)
             .Returns(false);
 
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedAddActionResult = new InventoryActionResult(ItemAdded, itemToAdd.Object);
         var expectedGetActionResult = new InventoryActionResult(ItemRetrieved, itemToAdd.Object);
 
@@ -103,7 +103,7 @@ public class InventoryTests
             .SetupGet(item => item.Stackable)
             .Returns(false);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedAddActionResult = new InventoryActionResult(ItemAlreadyExists, itemToAdd.Object);
         
         inventory.TryAddItem(itemToAdd.Object);
@@ -133,7 +133,7 @@ public class InventoryTests
             .SetupGet(item => item.Stack)
             .Returns(99);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedAddActionResult = new InventoryActionResult(ItemAdded, itemToAdd.Object);
         var expectedGetActionResult = new InventoryActionResult(ItemRetrieved, itemToAdd.Object);
         
@@ -165,7 +165,7 @@ public class InventoryTests
         
         var expectedAddActionResult = new InventoryActionResult(ItemStacked, stackableItem);
 
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         inventory.TryAddItem(stackableItem);
         
         var addActionResult = inventory.TryAddItem(itemToAdd);
@@ -194,7 +194,7 @@ public class InventoryTests
         };
         var expectedAddActionResult = new InventoryActionResult(ItemAdded, itemToAdd);
 
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         inventory.TryAddItem(stackableItem);
         
         var addActionResult = inventory.TryAddItem(itemToAdd);
@@ -223,7 +223,7 @@ public class InventoryTests
         };
         var expectedAddActionResult = new InventoryActionResult(ItemStackedAndSpilled, itemToAdd);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         inventory.TryAddItem(stackableItem);
         
         var addActionResult = inventory.TryAddItem(itemToAdd);
@@ -260,7 +260,7 @@ public class InventoryTests
         };
         var expectedAddActionResult = new InventoryActionResult(ItemStackedAndSpilled, itemToAdd);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         inventory.TryAddItem(firstSimilarStackableItem);
         inventory.TryAddItem(secondSimilarStackableItem);
         
@@ -299,7 +299,7 @@ public class InventoryTests
         };
         var expectedAddActionResult = new InventoryActionResult(ItemStacked, secondSimilarStackableItem);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         inventory.TryAddItem(firstSimilarStackableItem);
         inventory.TryAddItem(secondSimilarStackableItem);
         
@@ -319,7 +319,7 @@ public class InventoryTests
     public void TrySplitItemStack_when_ItemIsNotPresent__ReturnsExpectedActionResult_with_NoItem()
     {
         var id = Guid.NewGuid();
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedSplitActionResult = new InventoryActionResult(ItemNotFound);
 
         var splitActionResult = inventory.TrySplitItemStack(id, 1);
@@ -331,7 +331,7 @@ public class InventoryTests
     public void TrySplitItemStack_when_ItemIsPresent_and_NotStackable__ReturnsExpectedActionResult_with_OriginalItem()
     {
         var itemToSplit = new Item(ItemName, ItemIdentifier);
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedSplitActionResult = new InventoryActionResult(ItemStackNotSplit, itemToSplit);
 
         inventory.TryAddItem(itemToSplit);
@@ -355,7 +355,7 @@ public class InventoryTests
             .Setup(item => item.SplitStack(It.IsAny<int>()))
             .Returns(itemToSplit.Object);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedSplitActionResult = new InventoryActionResult(ItemStackNotSplit, itemToSplit.Object);
         
         inventory.TryAddItem(itemToSplit.Object);
@@ -387,7 +387,7 @@ public class InventoryTests
             .Setup(item => item.SplitStack(It.IsAny<int>()))
             .Returns(splitItem.Object);
         
-        var inventory = new Inventory(InventoryName);
+        IInventory inventory = new Inventory(InventoryName);
         var expectedSplitActionResult = new InventoryActionResult(ItemStackSplit, splitItem.Object);
         
         inventory.TryAddItem(itemToSplit.Object);

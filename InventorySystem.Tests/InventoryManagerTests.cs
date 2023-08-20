@@ -1,4 +1,6 @@
 ﻿using System;
+using InventorySystem.Abstractions;
+using Moq;
 using Xunit;
 
 namespace InventorySystem.Tests;
@@ -39,5 +41,121 @@ public class InventoryManagerTests
         
         Assert.False(isInventoryFound);
         Assert.Null(inventory);
+    }
+
+    [Fact]
+    public void CreateMultipleTimes__AddsMultipleInventories()
+    {
+        var inventoryManager = new InventoryManager();
+        var firstInventoryId = inventoryManager.CreateInventory(InventoryName);
+        var secondInventoryId = inventoryManager.CreateInventory(InventoryName);
+        
+        var isFirstInventoryFound = inventoryManager.TryGetInventory(firstInventoryId, out var firstInventory);
+        var isSecondInventoryFound = inventoryManager.TryGetInventory(secondInventoryId, out var secondInventory);
+        
+        Assert.Multiple(
+            () => Assert.True(isFirstInventoryFound),
+            () => Assert.True(isSecondInventoryFound),
+            () => Assert.NotEqual(firstInventory, secondInventory));
+    }
+
+    [Fact]
+    public void MoveItemBetweenInventories_whenSourceInventoryNotFound__ReturnsFalse()
+    {
+        var inventoryManager = new InventoryManager();
+        var sourceInventoryId = Guid.NewGuid();
+        var itemToMoveId = Guid.NewGuid();
+        var targetInventoryId = inventoryManager.CreateInventory(InventoryName);
+
+        var hasItemBeenMoved =
+            inventoryManager.MoveItemBetweenInventories(sourceInventoryId, targetInventoryId, itemToMoveId);
+        
+        Assert.False(hasItemBeenMoved);
+    }
+    
+    [Fact]
+    public void MoveItemBetweenInventories_whenTargetInventoryNotFound__ReturnsFalse()
+    {
+        var inventoryManager = new InventoryManager();
+        var targetInventoryId = Guid.NewGuid();
+        var itemToMoveId = Guid.NewGuid();
+        
+        var sourceInventoryId = inventoryManager.CreateInventory(InventoryName);
+
+        var hasItemBeenMoved =
+            inventoryManager.MoveItemBetweenInventories(sourceInventoryId, targetInventoryId, itemToMoveId);
+        
+        Assert.False(hasItemBeenMoved);
+    }
+    
+    [Fact]
+    public void MoveItemBetweenInventories_whenItemToMoveNotFound__ReturnsFalse()
+    {
+        var inventoryManager = new InventoryManager();
+        var itemToMoveId = Guid.NewGuid();
+
+        var sourceInventoryId = inventoryManager.CreateInventory(InventoryName);
+        var targetInventoryId = inventoryManager.CreateInventory(InventoryName);
+
+        var hasItemBeenMoved =
+            inventoryManager.MoveItemBetweenInventories(sourceInventoryId, targetInventoryId, itemToMoveId);
+        
+        Assert.False(hasItemBeenMoved);
+    }
+
+    [Fact]
+    public void MoveItemBetweenInventories_with_NonStackableItem__ReturnsTrue()
+    {
+        var inventoryManager = new InventoryManager();
+        var itemToMoveId = Guid.NewGuid();
+        var itemToMove = new Mock<IItem>();
+        itemToMove
+            .SetupGet(item => item.Id)
+            .Returns(itemToMoveId);
+        itemToMove
+            .SetupGet(item => item.Stackable)
+            .Returns(false);
+        
+        var sourceInventoryId = inventoryManager.CreateInventory(InventoryName);
+        var targetInventoryId = inventoryManager.CreateInventory(InventoryName);
+
+        inventoryManager.TryGetInventory(sourceInventoryId, out var sourceInventory);
+        sourceInventory.TryAddItem(itemToMove.Object);
+        
+        var hasItemBeenMoved =
+            inventoryManager.MoveItemBetweenInventories(sourceInventoryId, targetInventoryId, itemToMoveId);
+        
+        Assert.True(hasItemBeenMoved);
+    }
+    
+    [Fact]
+    public void MoveItemBetweenInventories_with_StackableItem__ReturnsTrue()
+    {
+        var inventoryManager = new InventoryManager();
+        var itemToMoveId = Guid.NewGuid();
+        var itemToMove = new Mock<IItem>();
+        itemToMove
+            .SetupGet(item => item.Id)
+            .Returns(itemToMoveId);
+        itemToMove
+            .SetupGet(item => item.Stackable)
+            .Returns(true);
+        itemToMove
+            .SetupGet(item => item.Stack)
+            .Returns(1);
+        itemToMove
+            .SetupGet(item => item.MaxStack)
+            .Returns(10);
+        
+        var sourceInventoryId = inventoryManager.CreateInventory(InventoryName);
+        var targetInventoryId = inventoryManager.CreateInventory(InventoryName);
+
+        inventoryManager.TryGetInventory(sourceInventoryId, out var sourceInventory);
+        sourceInventory.TryAddItem(itemToMove.Object);
+        
+        var hasItemBeenMoved =
+            inventoryManager.MoveItemBetweenInventories(sourceInventoryId, targetInventoryId, itemToMoveId);
+        
+        Assert.True(hasItemBeenMoved);
     }
 }

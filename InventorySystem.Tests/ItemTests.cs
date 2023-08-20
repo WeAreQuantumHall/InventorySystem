@@ -1,4 +1,5 @@
 ﻿using System;
+using InventorySystem.Abstractions;
 using Xunit;
 
 namespace InventorySystem.Tests;
@@ -16,7 +17,7 @@ public class ItemTests
         const int currentAmount = 0;
         const int maxAmount = 0;
 
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = stackable,
             Stack = currentAmount,
@@ -38,7 +39,7 @@ public class ItemTests
         const int currentAmount = 10;
         const int maxAmount = 10;
 
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = stackable,
             Stack = currentAmount,
@@ -55,7 +56,7 @@ public class ItemTests
         const int currentAmount = 1;
         const int maxAmount = 10;
 
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = stackable,
             Stack = currentAmount,
@@ -72,7 +73,7 @@ public class ItemTests
         const int currentAmount = 1;
         const int maxAmount = 10;
 
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = stackable,
             Stack = currentAmount,
@@ -86,7 +87,7 @@ public class ItemTests
     public void AddToStack_when_CannotBeStackedOn__ReturnsAmount()
     {
         const int amountToAdd = 10;
-        var item = new Item(Identifier, Name);
+        IItem item = new Item(Identifier, Name);
 
         var remainingStack = item.AddToStack(amountToAdd);
         
@@ -100,7 +101,7 @@ public class ItemTests
         const int expectedStack = 12;
         const int expectedRemainingStack = 0;
         
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = true,
             Stack = 2,
@@ -119,7 +120,7 @@ public class ItemTests
     {
         const int stackSize = 2;
 
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = false,
             Stack = stackSize,
@@ -138,7 +139,7 @@ public class ItemTests
     {
         const int stackSize = 1;
 
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = false,
             Stack = stackSize,
@@ -157,7 +158,7 @@ public class ItemTests
     {
         const int stackSize = 1;
 
-        var item = new Item(Identifier, Name)
+        IItem item = new Item(Identifier, Name)
         {
             Stackable = false,
             Stack = stackSize,
@@ -177,7 +178,7 @@ public class ItemTests
         const int expectedItemToSplitStack = 10;
         const int expectedSplitItemStack = 15;
         
-        var itemToSplit = new Item(Identifier, Name)
+        IItem itemToSplit = new Item(Identifier, Name)
         {
             Stackable = true,
             Stack = 25,
