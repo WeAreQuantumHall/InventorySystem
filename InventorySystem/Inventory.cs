@@ -17,6 +17,12 @@ namespace InventorySystem
         /// <inheritdoc />
         public string Name { get; private set; }
 
+        /// <inheritdoc />
+        public int Capacity { get; }
+
+        /// <inheritdoc />
+        public int Count => Items.Count;
+
         private Dictionary<Guid, IItem> Items { get; }
 
         /// <summary>
@@ -24,8 +30,22 @@ namespace InventorySystem
         /// </summary>
         /// <param name="name">The name of the inventory.</param>
         public Inventory(string name)
-            => (Name, Id, Items) = (name, Guid.NewGuid(), new Dictionary<Guid, IItem>());
+            => (Name, Id, Items, Capacity) = (name, Guid.NewGuid(), new Dictionary<Guid, IItem>(), 0);
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Inventory"/> class with a specified name and capacity.
+        /// </summary>
+        /// <param name="name">The name of the inventory.</param>
+        /// <param name="capacity">The capacity of the inventory.</param>
+        public Inventory(string name, int capacity)
+        {
+            (Name, Id, Capacity) = (name, Guid.NewGuid(), capacity < 1 ? 0 : capacity);
+            
+            Items = Capacity == 0
+                ? new Dictionary<Guid, IItem>()
+                : new Dictionary<Guid, IItem>(capacity);
+        }
+         
         /// <inheritdoc />
         public void SetName(string name) 
             => Name = name;
@@ -90,10 +110,10 @@ namespace InventorySystem
             
             while (TryGetSimilarStackableItem(item.Identifier, out var similarItem))
             {
-                var remainingStackToAdd = similarItem.AddToStack(item.Stack);
-                item.SetStack(remainingStackToAdd);
-
-                if (item.Stack == 0)
+                var remainingStack = similarItem.AddToStack(item.Stack);
+                item.AddToStack(remainingStack);
+                
+                if (remainingStack == 0)
                 {
                     updatedItem = similarItem;
                     return hasSpilled;

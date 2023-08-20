@@ -14,6 +14,11 @@
         /// An attempt was made to add an item that already exists in the inventory.
         /// </summary>
         ItemAlreadyExists,
+        
+        /// <summary>
+        /// An attempt was made to add an item that already exists in the inventory.
+        /// </summary>
+        InventoryAtCapacity,
 
         /// <summary>
         /// An item was successfully retrieved from the inventory.
