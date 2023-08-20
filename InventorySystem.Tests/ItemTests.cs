@@ -84,38 +84,6 @@ public class ItemTests
     }
     
     [Fact]
-    public void AddToStack_when_CannotBeStackedOn__ReturnsAmount()
-    {
-        const int amountToAdd = 10;
-        IItem item = new Item(Identifier, Name);
-
-        var remainingStack = item.AddToStack(amountToAdd);
-        
-        Assert.Equal(amountToAdd, remainingStack);
-    }
-
-    [Fact]
-    public void AddToStack_when_CanBeStackedOn_and_CanAddFullAmount__ReturnsZero()
-    {
-        const int amountToAdd = 10;
-        const int expectedStack = 12;
-        const int expectedRemainingStack = 0;
-        
-        IItem item = new Item(Identifier, Name)
-        {
-            Stackable = true,
-            Stack = 2,
-            MaxStack = 20
-        };
-
-        var remainingStack = item.AddToStack(amountToAdd);
-        
-        Assert.Multiple(
-            () => Assert.Equal(expectedStack, item.Stack),
-            () => Assert.Equal(expectedRemainingStack, remainingStack));
-    }
-
-    [Fact]
     public void SplitStack_when_NotStackable__ReturnsOriginalItemNotSplit()
     {
         const int stackSize = 2;
@@ -195,5 +163,45 @@ public class ItemTests
             () => Assert.Equal(itemToSplit.MaxStack, splitItem.MaxStack),
             () => Assert.Equal(expectedItemToSplitStack, itemToSplit.Stack),
             () => Assert.Equal(expectedSplitItemStack, splitItem.Stack));
+    }
+
+    [Fact]
+    public void AddToStack_when_AbleToAddWholeAmount__Returns0_and_SetsExpectedStack()
+    {
+        const int expectedRemainingAmount = 0;
+        const int expectedStack = 6;
+        
+        IItem item = new Item(Identifier, Name)
+        {
+            Stackable = true,
+            Stack = 1,
+            MaxStack = 10
+        };
+
+        var remainingAmount = item.AddToStack(5);
+        
+        Assert.Multiple(
+            () => Assert.Equal(expectedRemainingAmount, remainingAmount),
+            () => Assert.Equal(expectedStack, item.Stack));
+    }
+    
+    [Fact]
+    public void AddToStack_when_NotAbleToAddWholeAmount__ReturnsExpectedRemainingAmount_and_SetsExpectedStack()
+    {
+        const int expectedRemainingAmount = 8;
+        const int expectedStack = 10;
+        
+        IItem item = new Item(Identifier, Name)
+        {
+            Stackable = true,
+            Stack = 8,
+            MaxStack = 10
+        };
+
+        var remainingAmount = item.AddToStack(10);
+        
+        Assert.Multiple(
+            () => Assert.Equal(expectedRemainingAmount, remainingAmount),
+            () => Assert.Equal(expectedStack, item.Stack));
     }
 }

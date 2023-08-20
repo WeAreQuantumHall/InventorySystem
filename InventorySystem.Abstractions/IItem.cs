@@ -43,17 +43,11 @@ namespace InventorySystem.Abstractions
         bool CanBeStackedOn { get; }
 
         /// <summary>
-        /// Adds an amount to the item's stack.
-        /// </summary>
-        /// <param name="amount">The amount to add to the stack.</param>
-        /// <returns>The remaining amount after attempting to add to the stack.</returns>
-        int AddToStack(int amount);
-
-        /// <summary>
-        /// Sets the stack amount of the item.
+        /// Sets the stack amount of the item up to a maximum specified by MaxStack.
         /// </summary>
         /// <param name="amount">The new stack amount.</param>
-        void SetStack(int amount);
+        /// <returns>The remaining stack which could not be added.</returns>
+        int AddToStack(int amount);
 
         /// <summary>
         /// Splits the item stack into new items.

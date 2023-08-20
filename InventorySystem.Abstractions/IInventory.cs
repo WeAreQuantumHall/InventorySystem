@@ -1,4 +1,5 @@
 ﻿using System;
+using InventorySystem.Abstractions.Enums;
 
 namespace InventorySystem.Abstractions
 {
@@ -10,16 +11,29 @@ namespace InventorySystem.Abstractions
         Guid Id { get; }
 
         /// <summary>
-        /// Gets or sets the name of the inventory.
+        /// Gets the name of the inventory.
         /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Gets the capacity of the inventory. A capacity of 0 indicates a dynamically resized inventory.
+        /// In cases of frequently accessed inventories, it is best to specify a capacity on creation as this
+        /// will prevent the need to resize the internal dictionary during usage;  You will need to handle
+        /// <see cref="InventoryAction.InventoryAtCapacity"/> results when the inventory is full.
+        /// </summary>
+        int Capacity { get; }
+
+        /// <summary>
+        /// Gets the current count of items in the inventory
+        /// </summary>
+        int Count { get; }
+    
         /// <summary>
         /// Sets the name of the inventory.
         /// </summary>
         /// <param name="name">The new name for the inventory.</param>
         void SetName(string name);
-
+        
         /// <summary>
         /// Tries to add an item to the inventory.
         /// </summary>
@@ -31,7 +45,8 @@ namespace InventorySystem.Abstractions
         /// Tries to retrieve an item from the inventory by its Id.
         /// </summary>
         /// <param name="id">The Id of the item to retrieve.</param>
-        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieval operation.</returns>
+        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieval operation.
+        /// </returns>
         IInventoryActionResult TryGetItem(Guid id);
 
         /// <summary>

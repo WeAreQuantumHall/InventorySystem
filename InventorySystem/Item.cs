@@ -31,8 +31,19 @@ namespace InventorySystem
         public bool CanBeStackedOn => Stackable && Stack < MaxStack;
 
         /// <inheritdoc />
-        public void SetStack(int amount) => Stack = amount;
+        public int AddToStack(int amount)
+        {
+            var totalStack = Stack + amount;
+            if (totalStack > MaxStack)
+            {
+                Stack = MaxStack;
+                return totalStack - MaxStack;
+            }
 
+            Stack = totalStack;
+            return 0;
+        } 
+ 
         /// <summary>
         /// Initializes a new instance of the <see cref="Item"/> class with a specified identifier and name.
         /// </summary>
@@ -43,23 +54,6 @@ namespace InventorySystem
             Id = Guid.NewGuid();
             Identifier = identifier;
             Name = name;
-        }
-
-        /// <inheritdoc />
-        public int AddToStack(int amount)
-        {
-            if (!CanBeStackedOn) return amount;
-
-            var totalStack = Stack + amount;
-
-            if (totalStack > MaxStack)
-            {
-                Stack = MaxStack;
-                return totalStack - MaxStack;
-            }
-
-            Stack = totalStack;
-            return 0;
         }
         
         /// <inheritdoc />
