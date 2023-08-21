@@ -76,6 +76,51 @@ public class InventoryTests
     }
 
     [Fact]
+    public void TryAddItem_when_NotStackable_And_InventoryAtMaxCapacity__ReturnsExpectedActionResult_an_NotAddItem()
+    {
+        var itemMock = GetItemMock(false, 1, 1);
+        var itemToAddMock = GetItemMock(false, 1, 1);
+        var expectedAddActionResult = new InventoryActionResult(InventoryAtCapacity, itemToAddMock.Object);
+        
+        IInventory inventory = new Inventory(InventoryName, 1);
+        inventory.TryAddItem(itemMock.Object);
+        var addActionResult = inventory.TryAddItem(itemToAddMock.Object);
+
+        Assert.Equivalent(expectedAddActionResult, addActionResult);
+    }
+    
+    [Fact]
+    public void TryAddItem_when_Stackable_And_InventoryAtMaxCapacity__ReturnsExpectedActionResult_an_NotAddItem()
+    {
+        var itemAtCloseToCapacityMock = GetItemMock(true, 8, 10);
+        itemAtCloseToCapacityMock
+            .SetupSequence(item => item.Stack)
+            .Returns(10);
+        itemAtCloseToCapacityMock
+            .SetupSequence(item => item.CanBeStackedOn)
+            .Returns(true)
+            .Returns(false);
+        itemAtCloseToCapacityMock
+            .Setup(item => item.AddToStack(10))
+            .Returns(8);
+
+        var itemToStackMock = GetItemMock(true, 10, 30);
+        itemToStackMock
+            .SetupSequence(item => item.Stack)
+            .Returns(10)
+            .Returns(8)
+            .Returns(8);
+        
+        var expectedAddActionResult = new InventoryActionResult(InventoryAtCapacity, itemToStackMock.Object);
+        
+        IInventory inventory = new Inventory(InventoryName, 1);
+        inventory.TryAddItem(itemAtCloseToCapacityMock.Object);
+        var addActionResult = inventory.TryAddItem(itemToStackMock.Object);
+
+        Assert.Equivalent(expectedAddActionResult, addActionResult);
+    }
+
+    [Fact]
     public void TryAddItem_when_NotStackable_and_NotPresent__ReturnsExpectedActionResult_and_AddsItem()
     {
         const int expectedCount = 1;
@@ -89,7 +134,7 @@ public class InventoryTests
             () => Assert.Equivalent(expectedAddActionResult, addActionResult),
             () => Assert.Equal(expectedCount, inventory.Count));
     }
-
+    
     [Fact]
     public void TryAddItem_when_NotStackable_and_Present__ReturnsExpectedActionResult_and_NotAddItem()
     {
@@ -154,19 +199,19 @@ public class InventoryTests
         const int expectedStack = 10;
         const int expectedCount = 2;
 
-        var maxCapacityItem = GetItemMock(true, 10, 10);
-        var itemToBeStacked = GetItemMock(true, 10, 30);
+        var maxCapacityItemMock = GetItemMock(true, 10, 10);
+        var itemToBeStackedMock = GetItemMock(true, 10, 30);
         
-        var expectedAddActionResult = new InventoryActionResult(ItemAdded, itemToBeStacked.Object);
+        var expectedAddActionResult = new InventoryActionResult(ItemAdded, itemToBeStackedMock.Object);
 
         IInventory inventory = new Inventory(InventoryName);
-        inventory.TryAddItem(maxCapacityItem.Object);
+        inventory.TryAddItem(maxCapacityItemMock.Object);
 
-        var addActionResult = inventory.TryAddItem(itemToBeStacked.Object);
+        var addActionResult = inventory.TryAddItem(itemToBeStackedMock.Object);
 
         Assert.Multiple(
             () => Assert.Equivalent(expectedAddActionResult, addActionResult),
-            () => Assert.Equal(expectedStack, itemToBeStacked.Object.Stack),
+            () => Assert.Equal(expectedStack, itemToBeStackedMock.Object.Stack),
             () => Assert.Equal(expectedCount, inventory.Count));
     }
 
@@ -176,15 +221,15 @@ public class InventoryTests
         const int expectedStack = 8;
         const int expectedCount = 2;
 
-        var itemAtCloseToCapacity = GetItemMock(true, 8, 10);
-        itemAtCloseToCapacity
+        var itemAtCloseToCapacityMock = GetItemMock(true, 8, 10);
+        itemAtCloseToCapacityMock
             .SetupSequence(item => item.Stack)
             .Returns(10);
-        itemAtCloseToCapacity
+        itemAtCloseToCapacityMock
             .SetupSequence(item => item.CanBeStackedOn)
             .Returns(true)
             .Returns(false);
-        itemAtCloseToCapacity
+        itemAtCloseToCapacityMock
             .Setup(item => item.AddToStack(10))
             .Returns(8);
 
@@ -195,16 +240,16 @@ public class InventoryTests
             .Returns(8)
             .Returns(8);
         
-        var expectedAddActionResult = new InventoryActionResult(ItemStackedAndSpilled, itemToStackMock.Object);
+        var expectedAddActionResult = new InventoryActionResult(ItemAdded, itemToStackMock.Object);
 
         IInventory inventory = new Inventory(InventoryName);
-        inventory.TryAddItem(itemAtCloseToCapacity.Object);
+        inventory.TryAddItem(itemAtCloseToCapacityMock.Object);
 
         var addActionResult = inventory.TryAddItem(itemToStackMock.Object);
 
         Assert.Multiple(
             () => Assert.Equivalent(expectedAddActionResult, addActionResult),
-            () => Assert.Equal(itemAtCloseToCapacity.Object.MaxStack, itemAtCloseToCapacity.Object.Stack),
+            () => Assert.Equal(itemAtCloseToCapacityMock.Object.MaxStack, itemAtCloseToCapacityMock.Object.Stack),
             () => Assert.Equal(expectedStack, itemToStackMock.Object.Stack),
             () => Assert.Equal(expectedCount, inventory.Count));
     }
@@ -224,12 +269,16 @@ public class InventoryTests
     [Fact]
     public void TrySplitItemStack_when_ItemIsPresent_and_NotStackable__ReturnsExpectedActionResult_with_OriginalItem()
     {
-        var itemToSplit = new Item(ItemName, ItemIdentifier);
-        IInventory inventory = new Inventory(InventoryName);
-        var expectedSplitActionResult = new InventoryActionResult(ItemStackNotSplit, itemToSplit);
+        var itemToSplitMock = GetItemMock(false, 1, 1);
+        itemToSplitMock
+            .Setup(item => item.SplitStack(1))
+            .Returns(itemToSplitMock.Object);
 
-        inventory.TryAddItem(itemToSplit);
-        var splitActionResult = inventory.TrySplitItemStack(itemToSplit.Id, 1);
+        IInventory inventory = new Inventory(InventoryName);
+        var expectedSplitActionResult = new InventoryActionResult(ItemStackNotSplit, itemToSplitMock.Object);
+
+        inventory.TryAddItem(itemToSplitMock.Object);
+        var splitActionResult = inventory.TrySplitItemStack(itemToSplitMock.Object.Id, 1);
 
         Assert.Equivalent(expectedSplitActionResult, splitActionResult);
     }
@@ -238,24 +287,17 @@ public class InventoryTests
     public void
         TrySplitItemStack_when_ItemIsPresent_and_StackCannotBeSplit__ReturnsExpectedActionResult_with_OriginalItem()
     {
-        var id = Guid.NewGuid();
-        var itemToSplit = new Mock<IItem>();
-        itemToSplit
-            .SetupGet(item => item.Id)
-            .Returns(id);
-        itemToSplit
-            .SetupGet(item => item.Stackable)
-            .Returns(true);
-        itemToSplit
+        var itemToSplitMock = GetItemMock(true, 1, 2);
+        itemToSplitMock
             .Setup(item => item.SplitStack(It.IsAny<int>()))
-            .Returns(itemToSplit.Object);
+            .Returns(itemToSplitMock.Object);
 
         IInventory inventory = new Inventory(InventoryName);
-        var expectedSplitActionResult = new InventoryActionResult(ItemStackNotSplit, itemToSplit.Object);
+        var expectedSplitActionResult = new InventoryActionResult(ItemStackNotSplit, itemToSplitMock.Object);
 
-        inventory.TryAddItem(itemToSplit.Object);
+        inventory.TryAddItem(itemToSplitMock.Object);
 
-        var splitActionResult = inventory.TrySplitItemStack(id, 1);
+        var splitActionResult = inventory.TrySplitItemStack(itemToSplitMock.Object.Id, 1);
 
         Assert.Equivalent(expectedSplitActionResult, splitActionResult);
     }
@@ -263,36 +305,20 @@ public class InventoryTests
     [Fact]
     public void TrySplitItem_when_ItemIsPresent_andStackCanBeSplit__ReturnsExpectedActionResult_and_AddsNewItem()
     {
-        var itemToSplitId = Guid.NewGuid();
-        var splitItemId = Guid.NewGuid();
-
-        var splitItem = new Mock<IItem>();
-        splitItem
-            .SetupGet(item => item.Id)
-            .Returns(splitItemId);
-
-        var itemToSplit = new Mock<IItem>();
-        itemToSplit
-            .SetupGet(item => item.Id)
-            .Returns(itemToSplitId);
-        itemToSplit
-            .SetupGet(item => item.Stackable)
-            .Returns(true);
-        itemToSplit
+        var splitItemMock = GetItemMock(true, 2, 2);
+        var itemToSplitMock = GetItemMock(true, 1, 2);
+        itemToSplitMock
             .Setup(item => item.SplitStack(It.IsAny<int>()))
-            .Returns(splitItem.Object);
+            .Returns(splitItemMock.Object);
 
         IInventory inventory = new Inventory(InventoryName);
-        var expectedSplitActionResult = new InventoryActionResult(ItemStackSplit, splitItem.Object);
+        var expectedSplitActionResult = new InventoryActionResult(ItemStackSplit, splitItemMock.Object);
 
-        inventory.TryAddItem(itemToSplit.Object);
+        inventory.TryAddItem(itemToSplitMock.Object);
 
-        var splitActionResult = inventory.TrySplitItemStack(itemToSplitId, 1);
-        var getActionResult = inventory.TryGetItem(splitActionResult.Item!.Id);
+        var splitActionResult = inventory.TrySplitItemStack(itemToSplitMock.Object.Id, 1);
 
-        Assert.Multiple(
-            () => Assert.Equivalent(expectedSplitActionResult, splitActionResult),
-            () => Assert.Equal(ItemRetrieved, getActionResult.Result));
+        Assert.Equivalent(expectedSplitActionResult, splitActionResult);
     }
 
     private static Mock<IItem> GetItemMock(bool stackable, int stack, int maxStack)

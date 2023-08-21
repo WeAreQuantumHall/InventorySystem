@@ -23,6 +23,8 @@ namespace InventorySystem
         /// <inheritdoc />
         public int Count => Items.Count;
 
+        public bool IsAtCapacity => Capacity > 0 && Count == Capacity;
+
         private Dictionary<Guid, IItem> Items { get; }
 
         /// <summary>
@@ -53,8 +55,8 @@ namespace InventorySystem
         /// <inheritdoc />
         public IInventoryActionResult TryAddItem(IItem item) 
             => item.Stackable
-                ? AddStackableItem(item)
-                : AddItem(item);
+                ? TryAddStackableItem(item)
+                : TryAddItemToDictionary(item);
         
         /// <inheritdoc />
         public IInventoryActionResult TryGetItem(Guid id)
@@ -89,23 +91,28 @@ namespace InventorySystem
                 ? new InventoryActionResult(ItemRemoved, removedItem) 
                 : new InventoryActionResult(ItemNotRemoved); 
         }
-        
-        private InventoryActionResult AddItem(IItem item)
-            => Items.TryAdd(item.Id, item)
-                ? new InventoryActionResult(ItemAdded, item)
-                : new InventoryActionResult(ItemAlreadyExists, item);
 
-        private InventoryActionResult AddStackableItem(IItem item)
-            => ReconcileStacks(item, out var updatedItem) switch
+        /// <summary>
+        /// Tries to add an item to <see cref="Items"/> dictionary.
+        /// </summary>
+        /// <param name="item">The item to be added to the dictionary.</param>
+        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the add operation.
+        /// </returns>
+        private IInventoryActionResult TryAddItemToDictionary(IItem item) => 
+            (IsAtCapacity, Items.TryAdd(item.Id, item)) switch
             {
-                false when item == updatedItem => new InventoryActionResult(ItemAdded, item),
-                false when item != updatedItem => new InventoryActionResult(ItemStacked, updatedItem),
-                _ => new InventoryActionResult(ItemStackedAndSpilled, item)
+                (false, true) => new InventoryActionResult(ItemAdded, item),
+                (false, false) => new InventoryActionResult(ItemAlreadyExists, item),
+                _ => new InventoryActionResult(InventoryAtCapacity, item)
             };
 
-        private bool ReconcileStacks(IItem item, out IItem updatedItem)
+        /// <summary>
+        /// Tries to add a stackable item to <see cref="Items"/> dictionary.
+        /// </summary>
+        /// <param name="item">The item to be added to the dictionary.</param>
+        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieval operation.</returns>
+        private IInventoryActionResult TryAddStackableItem(IItem item)
         {
-            updatedItem = item;
             var hasSpilled = false;
             
             while (TryGetSimilarStackableItem(item.Identifier, out var similarItem))
@@ -115,15 +122,15 @@ namespace InventorySystem
                 
                 if (remainingStack == 0)
                 {
-                    updatedItem = similarItem;
-                    return hasSpilled;
+                    return hasSpilled
+                        ? new InventoryActionResult(ItemStackedAndSpilled, similarItem)
+                        : new InventoryActionResult(ItemStacked, similarItem);
                 }
                 
                 hasSpilled = true;
             }
             
-            Items.Add(item.Id, item);
-            return hasSpilled;
+            return TryAddItemToDictionary(item);
         }
 
         private bool TryGetSimilarStackableItem(string identifier, out IItem item)
