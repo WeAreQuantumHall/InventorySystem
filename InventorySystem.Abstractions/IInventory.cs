@@ -27,6 +27,14 @@ namespace InventorySystem.Abstractions
         /// Gets the current count of items in the inventory
         /// </summary>
         int Count { get; }
+        
+        /// <summary>
+        /// Checks if the inventory is at maximum capacity
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if an inventory with the specified ID was found; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool IsAtCapacity { get; }
     
         /// <summary>
         /// Sets the name of the inventory.
