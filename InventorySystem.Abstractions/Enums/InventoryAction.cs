@@ -66,8 +66,23 @@
         NotAnValidEquipmentItem,
         
         /// <summary>
-        /// An item's was swapped with another item in the stack
+        /// An item was swapped with another item in the stack
         /// </summary>
-        ItemSwapped
+        ItemSwapped,
+        
+        /// <summary>
+        /// A collection of items was retrieved. 
+        /// </summary>
+        ItemsRetrieved,
+        
+        /// <summary>
+        /// No items were found in the inventory
+        /// </summary>
+        ItemsNotFound,
+        
+        /// <summary>
+        /// The provided search category cannot be used to search this inventory
+        /// </summary>
+        SearchCategoryInvalid
     }
 }

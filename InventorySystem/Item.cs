@@ -33,7 +33,7 @@ namespace InventorySystem
 
         /// <inheritdoc />
         /// <remarks>Defaults to <see cref="EquipmentCategory.None"/></remarks>
-        public EquipmentCategory EquipmentCategory { get; } = EquipmentCategory.None;
+        public EquipmentCategory EquipmentCategory { get; set; } = EquipmentCategory.None;
 
         /// <inheritdoc />
         public int AddToStack(int amount)
