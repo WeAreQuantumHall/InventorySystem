@@ -10,9 +10,10 @@ on:
 jobs:
   qodana:
     runs-on: ubuntu-latest
+    environment: develop
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
       checks: write
     steps:
       - uses: actions/checkout@v3
