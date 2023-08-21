@@ -58,6 +58,16 @@
         /// <summary>
         /// An item's stack was not successfully split into two separate stacks in the inventory.
         /// </summary>
-        ItemStackNotSplit
+        ItemStackNotSplit,
+        
+        /// <summary>
+        /// An item is not an equipment item and cannot be added to the inventory
+        /// </summary>
+        NotAnValidEquipmentItem,
+        
+        /// <summary>
+        /// An item's was swapped with another item in the stack
+        /// </summary>
+        ItemSwapped
     }
 }

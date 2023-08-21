@@ -53,7 +53,7 @@ namespace InventorySystem
             => Name = name;
 
         /// <inheritdoc />
-        public IInventoryActionResult TryAddItem(IItem item) 
+        public virtual IInventoryActionResult TryAddItem(IItem item) 
             => item.Stackable
                 ? TryAddStackableItem(item)
                 : TryAddItemToDictionary(item);

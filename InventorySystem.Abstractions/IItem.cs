@@ -1,4 +1,5 @@
 ﻿using System;
+using InventorySystem.Abstractions.Enums;
 
 namespace InventorySystem.Abstractions
 {
@@ -21,6 +22,11 @@ namespace InventorySystem.Abstractions
         /// Gets the name of the item.
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Gets the EquipmentCategory of the Item.
+        /// </summary>
+        EquipmentCategory EquipmentCategory { get; }
 
         /// <summary>
         /// Gets whether the item can be stacked.
