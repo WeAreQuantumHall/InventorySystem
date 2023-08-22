@@ -28,8 +28,5 @@
 
 
 
-    <ItemGroup>
-      <Folder Include="InventoryTests\" />
-    </ItemGroup>
 
 </Project>

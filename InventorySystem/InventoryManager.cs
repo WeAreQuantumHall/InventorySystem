@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using InventorySystem.Abstractions;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Inventories;
 
 namespace InventorySystem
 {

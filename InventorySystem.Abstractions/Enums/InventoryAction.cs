@@ -58,6 +58,31 @@
         /// <summary>
         /// An item's stack was not successfully split into two separate stacks in the inventory.
         /// </summary>
-        ItemStackNotSplit
+        ItemStackNotSplit,
+        
+        /// <summary>
+        /// An item is not an equipment item and cannot be added to the inventory
+        /// </summary>
+        NotAnValidEquipmentItem,
+        
+        /// <summary>
+        /// An item was swapped with another item in the stack
+        /// </summary>
+        ItemSwapped,
+        
+        /// <summary>
+        /// A collection of items was retrieved. 
+        /// </summary>
+        ItemsRetrieved,
+        
+        /// <summary>
+        /// No items were found in the inventory
+        /// </summary>
+        ItemsNotFound,
+        
+        /// <summary>
+        /// The provided search category cannot be used to search this inventory
+        /// </summary>
+        SearchCategoryInvalid
     }
 }

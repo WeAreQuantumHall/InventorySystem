@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using InventorySystem.Abstractions;
+using InventorySystem.Abstractions.Enums;
 
 [assembly: InternalsVisibleTo("InventorySystem.Tests")]
 namespace InventorySystem
@@ -29,6 +30,10 @@ namespace InventorySystem
 
         /// <inheritdoc />
         public bool CanBeStackedOn => Stackable && Stack < MaxStack;
+
+        /// <inheritdoc />
+        /// <remarks>Defaults to <see cref="EquipmentCategory.None"/></remarks>
+        public EquipmentCategory EquipmentCategory { get; set; } = EquipmentCategory.None;
 
         /// <inheritdoc />
         public int AddToStack(int amount)

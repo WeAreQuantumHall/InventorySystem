@@ -1,4 +1,5 @@
-﻿using InventorySystem.Abstractions.Enums;
+﻿using System.Collections.Generic;
+using InventorySystem.Abstractions.Enums;
 
 namespace InventorySystem.Abstractions
 {
@@ -13,8 +14,13 @@ namespace InventorySystem.Abstractions
         InventoryAction Result { get; }
 
         /// <summary>
-        /// Gets the associated item with the inventory action result (if applicable).
+        /// Gets the associated IItem with the inventory action result (if applicable).
         /// </summary>
         IItem? Item { get; }
+        
+        /// <summary>
+        /// Gets the associated IEnumerable of IItems with the inventory action result (if applicable)
+        /// </summary>
+        IEnumerable<IItem>? Items { get; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using InventorySystem.Abstractions;
+using InventorySystem.Abstractions.Enums;
 using Xunit;
 
 namespace InventorySystem.Tests;
@@ -16,20 +17,23 @@ public class ItemTests
         const bool stackable = false;
         const int currentAmount = 0;
         const int maxAmount = 0;
+        const EquipmentCategory equipmentCategory = EquipmentCategory.Chest;
 
         IItem item = new Item(Identifier, Name)
         {
             Stackable = stackable,
             Stack = currentAmount,
-            MaxStack = maxAmount
+            MaxStack = maxAmount,
+            EquipmentCategory = equipmentCategory
         };
         
         Assert.Multiple(
-            () => Assert.NotEqual(Guid.NewGuid(), item.Id),
+            () => Assert.NotEqual(Guid.Empty, item.Id),
             () => Assert.Equal(Identifier, item.Identifier),
             () => Assert.Equal(stackable, item.Stackable),
             () => Assert.Equal(currentAmount, item.Stack),
-            () => Assert.Equal(maxAmount, item.MaxStack));
+            () => Assert.Equal(maxAmount, item.MaxStack),
+            () => Assert.Equal(equipmentCategory, item.EquipmentCategory));
     }
 
     [Fact]
