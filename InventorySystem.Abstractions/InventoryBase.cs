@@ -1,4 +1,5 @@
 ﻿using System;
+using InventorySystem.Abstractions.Enums;
 
 namespace InventorySystem.Abstractions
 {
@@ -40,6 +41,6 @@ namespace InventorySystem.Abstractions
         /// <inheritdoc />
         public abstract IInventoryActionResult TryRemoveItem(Guid id);
 
-        public abstract IInventoryActionResult TryGetItemByCategory<TEnum>(TEnum category) where TEnum : Enum;
+        public abstract IInventoryActionResult TryGetItemsByCategory(ItemCategory category);
     }
 }

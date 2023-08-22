@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using InventorySystem.Abstractions;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Tags;
 
 [assembly: InternalsVisibleTo("InventorySystem.Tests")]
 namespace InventorySystem
@@ -14,10 +18,10 @@ namespace InventorySystem
         public Guid Id { get; }
 
         /// <inheritdoc />
-        public string Identifier { get; set; }
+        public string Identifier { get; }
 
         /// <inheritdoc />
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <inheritdoc />
         public bool Stackable { get; set; }
@@ -32,8 +36,10 @@ namespace InventorySystem
         public bool CanBeStackedOn => Stackable && Stack < MaxStack;
 
         /// <inheritdoc />
-        /// <remarks>Defaults to <see cref="EquipmentCategory.None"/></remarks>
-        public EquipmentCategory EquipmentCategory { get; set; } = EquipmentCategory.None;
+        public ItemCategory ItemCategory { get; }
+
+        private ITagList TagList { get; }
+        public IReadOnlyList<string> Tags => TagList.Tags;
 
         /// <inheritdoc />
         public int AddToStack(int amount)
@@ -47,18 +53,22 @@ namespace InventorySystem
 
             Stack = totalStack;
             return 0;
-        } 
- 
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Item"/> class with a specified identifier and name.
         /// </summary>
         /// <param name="identifier">The identifier of the item.</param>
         /// <param name="name">The name of the item.</param>
-        public Item(string identifier, string name)
+        /// <param name="category"></param>
+        /// <param name="tagList"></param>
+        public Item(string identifier, string name, ItemCategory category, IEnumerable<string>? tagList = null)
         {
             Id = Guid.NewGuid();
             Identifier = identifier;
             Name = name;
+            ItemCategory = category;
+            TagList = tagList == null ? new TagList() : new TagList(tagList);
         }
         
         /// <inheritdoc />
@@ -66,7 +76,7 @@ namespace InventorySystem
         {
             if (!Stackable || Stack == 1 || splitAmount >= Stack) return this;
 
-            var splitItem = new Item(Identifier, Name)
+            var splitItem = new Item(Identifier, Name, ItemCategory, Tags)
             {
                 Stackable = Stackable,
                 Stack = splitAmount,
@@ -76,5 +86,8 @@ namespace InventorySystem
 
             return splitItem;
         }
+
+        public bool AddTag(string tag) => TagList.AddTag(tag);
+        public bool RemoveTag(string tag) => TagList.RemoveTag(tag);
     }
 }

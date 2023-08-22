@@ -14,14 +14,12 @@ namespace InventorySystem.Inventories
     {
         private Dictionary<Guid, IItem> Items { get; } = new Dictionary<Guid, IItem>();
 
-        private Dictionary<Type, Func<Enum, IEnumerable<IItem>>> SearchCategories { get; }
-
         /// <inheritdoc />
         public override int Count => Items.Count;
 
         public override bool IsAtCapacity => Capacity > 0 && Count == Capacity;
 
-        //private override Type _searchCategoryType = typeof(EquipmentCategory); 
+        //private override Type _searchCategoryType = typeof(ItemCategory); 
 
 
         /// <summary>
@@ -32,10 +30,6 @@ namespace InventorySystem.Inventories
         public Inventory(string name, int capacity = 0) : base(name, capacity)
         {
             if (capacity > 0) Items.EnsureCapacity(capacity);
-            SearchCategories = new Dictionary<Type, Func<Enum, IEnumerable<IItem>>>
-            {
-                {typeof(EquipmentCategory), category => GetByEquipmentCategory((EquipmentCategory) category)}
-            };
         }
 
         /// <inheritdoc />
@@ -51,26 +45,17 @@ namespace InventorySystem.Inventories
                 : new InventoryActionResult(ItemNotFound, item);
 
         /// <inheritdoc />
-        public override IInventoryActionResult TryGetItemByCategory<TEnum>(TEnum category)
+        public override IInventoryActionResult TryGetItemsByCategory(ItemCategory category)
         {
-            var categoryType = typeof(TEnum);
+            var matchingItems = Items
+                .Where(kvp => kvp.Value.ItemCategory == category)
+                .Select(kvp => kvp.Value)
+                .ToList();
 
-            if (!SearchCategories.TryGetValue(categoryType, out var func))
-            {
-                return new InventoryActionResult(SearchCategoryInvalid);
-            }
-                
-            var items = func(category).ToArray();
-            return items.Length > 0
-                ? new InventoryActionResult(ItemsRetrieved, items)
+            return matchingItems.Any()
+                ? new InventoryActionResult(ItemsRetrieved, matchingItems)
                 : new InventoryActionResult(ItemsNotFound);
         }
-
-        private IEnumerable<IItem> GetByEquipmentCategory(EquipmentCategory category)
-            => Items
-                .Where(kvp => kvp.Value.EquipmentCategory == category)
-                .Select(kvp => kvp.Value);
-
 
         /// <inheritdoc />
         public override IInventoryActionResult GetAllItems()

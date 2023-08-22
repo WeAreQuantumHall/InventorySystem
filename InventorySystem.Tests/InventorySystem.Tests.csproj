@@ -24,6 +24,7 @@
     <ItemGroup>
       <ProjectReference Include="..\InventorySystem.Abstractions\InventorySystem.Abstractions.csproj" />
       <ProjectReference Include="..\InventorySystem\InventorySystem.csproj" />
+
     </ItemGroup>
 
 

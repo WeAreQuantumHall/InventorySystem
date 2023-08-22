@@ -264,29 +264,15 @@ public class InventoryTests
     }
 
     [Fact]
-    public void TryGetItemByCategory_when_InvalidCategory__ReturnsExpectedActionResult_with_NoItems()
-    {
-        IInventory inventory = new Inventory(InventoryName);
-        IInventoryActionResult expectedGetByCategoryActionResult = new InventoryActionResult(SearchCategoryInvalid);
-        
-        var getByCategoryActionResult = inventory.TryGetItemByCategory(FakeCategory.FakeValue);
-        
-        Assert.Equivalent(expectedGetByCategoryActionResult, getByCategoryActionResult);
-    }
-    
-    [Fact]
     public void TryGetItemByCategory_when_NoItemsFound__ReturnsExpectedActionResult_with_NoItems()
     {
         var firstItemMock = GetItemMock(false, 1, 1);
-        firstItemMock
-            .Setup(item => item.EquipmentCategory)
-            .Returns(EquipmentCategory.Head);
         
         IInventory inventory = new Inventory(InventoryName);
         IInventoryActionResult expectedGetByCategoryActionResult = new InventoryActionResult(ItemsNotFound);
         
         inventory.TryAddItem(firstItemMock.Object);
-        var getByCategoryActionResult = inventory.TryGetItemByCategory(EquipmentCategory.Chest);
+        var getByCategoryActionResult = inventory.TryGetItemsByCategory(ItemCategory.Food);
         
         Assert.Equivalent(expectedGetByCategoryActionResult, getByCategoryActionResult);
     }
@@ -295,13 +281,11 @@ public class InventoryTests
     public void TryGetItemByCategory_when_ItemsFound__ReturnsExpectedActionResult_with_ItemEnumerable()
     {
         var firstItemMock = GetItemMock(false, 1, 1);
-        firstItemMock
-            .Setup(item => item.EquipmentCategory)
-            .Returns(EquipmentCategory.Head);
         var secondItemMock = GetItemMock(false, 1, 1);
         secondItemMock
-            .Setup(item => item.EquipmentCategory)
-            .Returns(EquipmentCategory.Chest);
+            .Setup(item => item.ItemCategory)
+            .Returns(ItemCategory.Food);
+        
         IInventoryActionResult expectedGetByCategoryActionResult = new InventoryActionResult(ItemsRetrieved, new [] 
         {
             secondItemMock.Object
@@ -311,7 +295,7 @@ public class InventoryTests
         inventory.TryAddItem(firstItemMock.Object);
         inventory.TryAddItem(secondItemMock.Object);
         
-        var getByCategoryActionResult = inventory.TryGetItemByCategory(EquipmentCategory.Chest);
+        var getByCategoryActionResult = inventory.TryGetItemsByCategory(ItemCategory.Food);
         
         Assert.Equivalent(expectedGetByCategoryActionResult, getByCategoryActionResult);
     }
@@ -461,6 +445,8 @@ public class InventoryTests
             .Returns(maxStack);
         itemMock.Setup(item => item.CanBeStackedOn)
             .Returns(stackable && stack < maxStack);
+        itemMock.Setup(item => item.ItemCategory)
+            .Returns(ItemCategory.Equipment);
         return itemMock;
     }
 }

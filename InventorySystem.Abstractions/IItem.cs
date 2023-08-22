@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using InventorySystem.Abstractions.Enums;
 
 namespace InventorySystem.Abstractions
@@ -24,9 +25,11 @@ namespace InventorySystem.Abstractions
         string Name { get; }
 
         /// <summary>
-        /// Gets the EquipmentCategory of the Item.
+        /// Gets the Item Category of the Item.
         /// </summary>
-        EquipmentCategory EquipmentCategory { get; }
+        ItemCategory ItemCategory { get; }
+
+        IReadOnlyList<string> Tags { get; }
 
         /// <summary>
         /// Gets whether the item can be stacked.
@@ -61,5 +64,9 @@ namespace InventorySystem.Abstractions
         /// <param name="splitAmount">The stack amount of the new item.</param>
         /// <returns>The new item with requested stack amount.</returns>
         IItem SplitStack(int splitAmount);
+
+        bool AddTag(string tag);
+
+        bool RemoveTag(string tag);
     }
 }

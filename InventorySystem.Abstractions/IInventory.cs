@@ -83,6 +83,6 @@ namespace InventorySystem.Abstractions
         /// </summary>
         /// <param name="category">The Enum Values to search for</param>
         /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieve operation.</returns>
-        IInventoryActionResult TryGetItemByCategory<TEnum>(TEnum category) where TEnum : Enum;
+        IInventoryActionResult TryGetItemsByCategory(ItemCategory category);
     }
 }
