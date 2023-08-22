@@ -427,6 +427,43 @@ public class InventoryTests
         
         Assert.False(inventory.IsAtCapacity);
     }
+
+    [Fact]
+    public void SearchByTag_when_DictionaryContainItemsWithTag__ReturnsExpectedActionResult_with_Items()
+    {
+        var itemToFindMock = GetItemMock(false, 1, 1);
+        var notFoundItemMock = GetItemMock(false, 1, 1);
+        notFoundItemMock
+            .Setup(item => item.Tags)
+            .Returns(new[] {"ITEM_TAG_3"});
+
+        var expectedSearchByTagActionResult = new InventoryActionResult(ItemsRetrieved, new[] {itemToFindMock.Object});
+
+        IInventory inventory = new Inventory(InventoryName);
+        inventory.TryAddItem(itemToFindMock.Object);
+        inventory.TryAddItem(notFoundItemMock.Object);
+
+        var searchByTagActionResult = inventory.SearchByTag("ITEM_TAG_2");
+        
+        Assert.Equivalent(expectedSearchByTagActionResult, searchByTagActionResult);
+    }
+    
+    [Fact]
+    public void SearchByTag_when_DictionaryDoesNotContainItemsWithTag__ReturnsExpectedActionResult_without_Items()
+    {
+        var firstItemMock = GetItemMock(false, 1, 1);
+        var secondItemMock = GetItemMock(false, 1, 1);
+        
+        var expectedSearchByTagActionResult = new InventoryActionResult(ItemsNotFound);
+
+        IInventory inventory = new Inventory(InventoryName);
+        inventory.TryAddItem(firstItemMock.Object);
+        inventory.TryAddItem(secondItemMock.Object);
+
+        var searchByTagActionResult = inventory.SearchByTag("ITEM_TAG_3");
+        
+        Assert.Equivalent(expectedSearchByTagActionResult, searchByTagActionResult);
+    }
     
     private static Mock<IItem> GetItemMock(bool stackable, int stack, int maxStack)
     {
@@ -447,6 +484,9 @@ public class InventoryTests
             .Returns(stackable && stack < maxStack);
         itemMock.Setup(item => item.ItemCategory)
             .Returns(ItemCategory.Equipment);
+        itemMock
+            .Setup(item => item.Tags)
+            .Returns(new[] {"ITEM_TAG_1", "ITEM_TAG_2"});
         return itemMock;
     }
 }

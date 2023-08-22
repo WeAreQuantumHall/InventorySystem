@@ -70,21 +70,12 @@ namespace InventorySystem.Inventories
         /// <inheritdoc />
         public override IInventoryActionResult TrySplitItemStack(Guid id, int splitAmount)
         {
-
-            if (!Items.TryGetValue(id, out var item))
-            {
-                return new InventoryActionResult(ItemNotFound);
-            }
-
+            if (!Items.TryGetValue(id, out var item)) return new InventoryActionResult(ItemNotFound);
+            
             var splitItem = item.SplitStack(splitAmount);
-
-            if (splitItem == item)
-            {
-                return new InventoryActionResult(ItemStackNotSplit, item);
-            }
-
+            if (splitItem == item) return new InventoryActionResult(ItemStackNotSplit, item);
+            
             Items.Add(splitItem.Id, splitItem);
-
             return new InventoryActionResult(ItemStackSplit, splitItem);
         }
 
@@ -154,6 +145,18 @@ namespace InventorySystem.Inventories
                 .Value;
 
             return item != null;
+        }
+
+        public override IInventoryActionResult SearchByTag(string tag)
+        {
+            var retrievedItems = Items
+                .Where(item => item.Value.Tags.Contains(tag))
+                .Select(item => item.Value)
+                .ToList();
+
+            return retrievedItems.Count == 0
+                ? new InventoryActionResult(ItemsNotFound)
+                : new InventoryActionResult(ItemsRetrieved, retrievedItems);
         }
     }
 }
