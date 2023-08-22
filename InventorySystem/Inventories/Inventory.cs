@@ -153,7 +153,15 @@ namespace InventorySystem.Inventories
             
             return TryAddItemToDictionary(item);
         }
-
+        
+        /// <summary>
+        /// Tries to retrieve the first item in the inventory with matching identifier.
+        /// </summary>
+        /// <param name="identifier">The identifier of the item to be found.</param>
+        /// <param name="item">Outputs the item if it was found.</param>
+        /// <returns>
+        /// <see langword="true"/>when item found; otherwise <see langword="false" />
+        /// </returns>
         private bool TryGetSimilarStackableItem(string identifier, out IItem item)
         {
             item = Items
