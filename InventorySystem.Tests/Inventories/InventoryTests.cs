@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
-using InventorySystem.Abstractions;
-using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Inventories;
+using InventorySystem.Abstractions.Tags;
 using InventorySystem.ActionResults;
 using InventorySystem.Inventories;
 using InventorySystem.Tests.Data;
@@ -13,8 +13,7 @@ namespace InventorySystem.Tests.Inventories;
 
 public class InventoryTests
 {
-    private const string InventoryName = "TEST_INVENTORY_NAME";
-
+    private const string InventoryName = "test-inventory-name";
 
     [Fact]
     public void New_without_Capacity__CreatesCorrectlyPopulatedValues()
@@ -42,18 +41,41 @@ public class InventoryTests
     }
 
     [Fact]
+    public void IsAtCapacity_when_DictionaryIsAtCapacity__ReturnsTrue()
+    {
+        var itemMock = MockItemData.GetItemMock(false, 1, 1);
+        
+        IInventory inventory = new Inventory(InventoryName, 1);
+        inventory.TryAddItem(itemMock.Object);
+        
+        Assert.True(inventory.IsAtCapacity);
+    }
+    
+    [Fact]
+    public void IsAtCapacity_when_DictionaryIsNotAtCapacity__ReturnsFalse()
+    {
+        var itemMock = MockItemData.GetItemMock(false, 1, 1);
+        
+        IInventory inventory = new Inventory(InventoryName, 2);
+        inventory.TryAddItem(itemMock.Object);
+        
+        Assert.False(inventory.IsAtCapacity);
+    }
+    
+    [Fact]
     public void SetName__CorrectlySetsName()
     {
-        const string newInventoryName = "TEST_NAME_NEW";
+        const string newInventoryName = "new-inventory-name";
         IInventory inventory = new Inventory(InventoryName);
 
         inventory.SetName(newInventoryName);
 
         Assert.Equal(newInventoryName, inventory.Name);
     }
+    
 
     [Fact]
-    public void TryAddItem_when_NotStackable_And_InventoryAtMaxCapacity__ReturnsExpectedActionResult_an_NotAddItem()
+    public void TryAddItem_when_NotStackable_And_InventoryAtMaxCapacity__ReturnsExpectedActionResult_and_NotAddItem()
     {
         var itemMock = MockItemData.GetItemMock(false, 1, 1);
         var itemToAddMock = MockItemData.GetItemMock(false, 1, 1);
@@ -68,7 +90,7 @@ public class InventoryTests
     }
     
     [Fact]
-    public void TryAddItem_when_Stackable_And_InventoryAtMaxCapacity__ReturnsExpectedActionResult_an_NotAddItem()
+    public void TryAddItem_when_Stackable_And_InventoryAtMaxCapacity__ReturnsExpectedActionResult_and_NotAddItem()
     {
         var itemAtCloseToCapacityMock = MockItemData.GetItemMock(true, 8, 10);
         itemAtCloseToCapacityMock
@@ -263,44 +285,7 @@ public class InventoryTests
     }
 
     [Fact]
-    public void TryGetItemByCategory_when_NoItemsFound__ReturnsExpectedActionResult_with_NoItems()
-    {
-        var firstItemMock = MockItemData.GetItemMock(false, 1, 1);
-        
-        IInventory inventory = new Inventory(InventoryName);
-        IInventoryActionResult expectedGetByCategoryActionResult = new InventoryActionResult(ItemsNotFound);
-        
-        inventory.TryAddItem(firstItemMock.Object);
-        var getByCategoryActionResult = inventory.TryGetItemsByCategory(ItemCategory.Food);
-        
-        Assert.Equivalent(expectedGetByCategoryActionResult, getByCategoryActionResult);
-    }
-    
-    [Fact]
-    public void TryGetItemByCategory_when_ItemsFound__ReturnsExpectedActionResult_with_ItemEnumerable()
-    {
-        var firstItemMock = MockItemData.GetItemMock(false, 1, 1);
-        var secondItemMock = MockItemData.GetItemMock(false, 1, 1);
-        secondItemMock
-            .Setup(item => item.ItemCategory)
-            .Returns(ItemCategory.Food);
-        
-        IInventoryActionResult expectedGetByCategoryActionResult = new InventoryActionResult(ItemsRetrieved, new [] 
-        {
-            secondItemMock.Object
-        });
-        
-        IInventory inventory = new Inventory(InventoryName);
-        inventory.TryAddItem(firstItemMock.Object);
-        inventory.TryAddItem(secondItemMock.Object);
-        
-        var getByCategoryActionResult = inventory.TryGetItemsByCategory(ItemCategory.Food);
-        
-        Assert.Equivalent(expectedGetByCategoryActionResult, getByCategoryActionResult);
-    }
-
-    [Fact]
-    public void GetAllItems_when_NoItemsPresent__ReturnsExpectedActionResult_with_NoItems()
+    public void TryGetAllItems_when_NoItemsPresent__ReturnsExpectedActionResult_with_NoItems()
     {
         IInventory inventory = new Inventory(InventoryName);
         IInventoryActionResult expectedGetAllItemsActionResult = new InventoryActionResult(ItemsNotFound);
@@ -313,7 +298,7 @@ public class InventoryTests
     }
     
     [Fact]
-    public void GetAllItems_when_ItemsPresent__ReturnsExpectedActionResult_with_Items()
+    public void TryGetAllItems_when_ItemsPresent__ReturnsExpectedActionResult_with_Items()
     {
         const int expectedCount = 2;
         var firstItemMock = MockItemData.GetItemMock(false, 1, 1);
@@ -332,7 +317,7 @@ public class InventoryTests
         Assert.Equivalent(expectedGetAllItemsActionResult, getAllItemsActionResult);Assert.Multiple(
             () => Assert.Equivalent(expectedGetAllItemsActionResult, getAllItemsActionResult),
             () => Assert.NotNull(getAllItemsActionResult.Items),
-            () => Assert.Equal(expectedCount, getAllItemsActionResult.Items!.Count()));
+            () => Assert.Equal(expectedCount, getAllItemsActionResult.Items.Count()));
     }
 
     [Fact]
@@ -366,8 +351,7 @@ public class InventoryTests
     }
 
     [Fact]
-    public void
-        TrySplitItemStack_when_ItemIsPresent_and_StackCannotBeSplit__ReturnsExpectedActionResult_with_OriginalItem()
+    public void TrySplitItemStack_when_ItemIsPresent_and_StackCannotBeSplit__ReturnsExpectedActionResult_with_OriginalItem()
     {
         var itemToSplitMock = MockItemData.GetItemMock(true, 1, 2);
         itemToSplitMock
@@ -405,42 +389,49 @@ public class InventoryTests
         Assert.Equivalent(expectedSplitActionResult, splitActionResult);
     }
 
+
     [Fact]
-    public void IsAtCapacity_when_DictionaryIsAtCapacity__ReturnsTrue()
+    public void TryRemoveItem_when_ItemDoesNotExist__ReturnsExpectedActionResult_without_Item()
     {
-        var itemMock = MockItemData.GetItemMock(false, 1, 1);
+        var existingItemMock = MockItemData.GetItemMock(false, 1, 1);
+        var expectedRemoveItemActionResult = new InventoryActionResult(ItemNotFound);
+        var inventory = new Inventory(InventoryName);
         
-        IInventory inventory = new Inventory(InventoryName, 1);
-        inventory.TryAddItem(itemMock.Object);
+        var removeItemActionResult = inventory.TryRemoveItem(existingItemMock.Object.Id);
         
-        Assert.True(inventory.IsAtCapacity);
+        Assert.Equivalent(expectedRemoveItemActionResult, removeItemActionResult);
     }
     
     [Fact]
-    public void IsAtCapacity_when_DictionaryIsNotAtCapacity__ReturnsFalse()
+    public void TryRemoveItem_when_ItemDoesExist__ReturnsExpectedActionResult_with_Item()
     {
-        var itemMock = MockItemData.GetItemMock(false, 1, 1);
+        var existingItemMock = MockItemData.GetItemMock(false, 1, 1);
+        var expectedRemoveItemActionResult = new InventoryActionResult(ItemRemoved, existingItemMock.Object);
         
-        IInventory inventory = new Inventory(InventoryName, 2);
-        inventory.TryAddItem(itemMock.Object);
+        var inventory = new Inventory(InventoryName);
+        inventory.TryAddItem(existingItemMock.Object);
+        var removeItemActionResult = inventory.TryRemoveItem(existingItemMock.Object.Id);
         
-        Assert.False(inventory.IsAtCapacity);
+        Assert.Equivalent(expectedRemoveItemActionResult, removeItemActionResult);
     }
 
     [Fact]
     public void SearchByTag_when_DictionaryContainItemsWithTag__ReturnsExpectedActionResult_with_Items()
     {
+        var itemTagToFindIdentifier = Guid.NewGuid();
+        var itemTagToFindMock = new Mock<ITag>();
+        itemTagToFindMock
+            .Setup(tag => tag.Identifier)
+            .Returns(itemTagToFindIdentifier);
         var itemToFindMock = MockItemData.GetItemMock(false, 1, 1);
-        const string itemTagToFind = "ITEM_TAG_2";
         itemToFindMock
-            .Setup(item => item.ContainsTag(itemTagToFind))
+            .Setup(item => item.ContainsTag(itemTagToFindMock.Object))
             .Returns(true);
             
         var notFoundItemMock = MockItemData.GetItemMock(false, 1, 1);
         notFoundItemMock
-            .Setup(item => item.ContainsTag(itemTagToFind))
+            .Setup(item => item.ContainsTag(It.IsAny<ITag>()))
             .Returns(false);
-
 
         var expectedSearchByTagActionResult = new InventoryActionResult(ItemsRetrieved, new[] {itemToFindMock.Object});
 
@@ -448,7 +439,7 @@ public class InventoryTests
         inventory.TryAddItem(itemToFindMock.Object);
         inventory.TryAddItem(notFoundItemMock.Object);
 
-        var searchByTagActionResult = inventory.TryGetItemsByTag(itemTagToFind);
+        var searchByTagActionResult = inventory.TryGetItemsByTag(itemTagToFindMock.Object);
         
         Assert.Equivalent(expectedSearchByTagActionResult, searchByTagActionResult);
     }
@@ -465,8 +456,9 @@ public class InventoryTests
         inventory.TryAddItem(firstItemMock.Object);
         inventory.TryAddItem(secondItemMock.Object);
 
-        var searchByTagActionResult = inventory.TryGetItemsByTag("ITEM_TAG_3");
+        var searchByTagActionResult = inventory.TryGetItemsByTag(new Mock<ITag>().Object);
         
         Assert.Equivalent(expectedSearchByTagActionResult, searchByTagActionResult);
     }
+
 }

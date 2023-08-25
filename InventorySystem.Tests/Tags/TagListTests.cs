@@ -1,5 +1,7 @@
-﻿using InventorySystem.Abstractions;
+﻿using System.Collections.Generic;
+using InventorySystem.Abstractions.Tags;
 using InventorySystem.Tags;
+using Moq;
 using Xunit;
 
 namespace InventorySystem.Tests.Tags;
@@ -15,9 +17,9 @@ public class TagListTests
     }
     
     [Fact]
-    public void New_with_StringEnumerableProvided__CreatesNewTagListWithProvidedTags()
+    public void New_when_TagList__CreatesNewTagListWithProvidedTags()
     {
-        var expectedTags = new [] {"TestTag", "TestTag2"};
+        var expectedTags = new[] {new Mock<ITag>().Object, new Mock<ITag>().Object};
 
         ITagList tagList = new TagList(expectedTags);
 
@@ -27,10 +29,11 @@ public class TagListTests
     [Fact]
     public void IsMember_when_TagIsFound__ReturnsTrue()
     {
-        var expectedTags = new [] {"TestTag", "TestTag2"};
-
+        var tagToFind = new Mock<ITag>();
+        var expectedTags = new[] {tagToFind.Object, new Mock<ITag>().Object};
+        
         ITagList tagList = new TagList(expectedTags);
-        var isMember = tagList.ContainsTag("TestTag");
+        var isMember = tagList.ContainsTag(tagToFind.Object);
 
         Assert.True(isMember);
     }
@@ -38,10 +41,10 @@ public class TagListTests
     [Fact]
     public void IsMember_when_TagIsNotFound__ReturnsFalse()
     {
-        var expectedTags = new [] {"TestTag", "TestTag2"};
+        var expectedTags = new[] {new Mock<ITag>().Object, new Mock<ITag>().Object};
 
         ITagList tagList = new TagList(expectedTags);
-        var isMember = tagList.ContainsTag("TestTag3");
+        var isMember = tagList.ContainsTag(new Mock<ITag>().Object);
 
         Assert.False(isMember);
     }
@@ -49,11 +52,13 @@ public class TagListTests
     [Fact]
     public void AddTag_when_TagDoesNotExist_ReturnsTrueAndAddsTag()
     {
-        var existingTags = new [] {"TestTag", "TestTag2"};
-        var expectedTags = new [] {"TestTag", "TestTag2", "TestTag3"};
+        var existingTagMock = new Mock<ITag>();
+        var tagToAddMock = new Mock<ITag>();
+        var existingTags = new [] {existingTagMock.Object};
+        var expectedTags = new [] {existingTagMock.Object, tagToAddMock.Object};
 
         ITagList tagList = new TagList(existingTags);
-        var hasBeenAdded = tagList.AddTag("TestTag3");
+        var hasBeenAdded = tagList.AddTag(tagToAddMock.Object);
         
         Assert.Multiple(
             () => Assert.True(hasBeenAdded),
@@ -63,40 +68,42 @@ public class TagListTests
     [Fact]
     public void AddTag_when_TagAlreadyExists_ReturnsFalseAndDoesNotAddTag()
     {
-        var tags = new [] {"TestTag", "TestTag2"};
-
-        ITagList tagList = new TagList(tags);
-        var hasBeenAdded = tagList.AddTag("TestTag2");
+        var tagToAddMock = new Mock<ITag>();
+        var existingTags = new [] { tagToAddMock.Object };
+        
+        ITagList tagList = new TagList(existingTags);
+        var hasBeenAdded = tagList.AddTag(tagToAddMock.Object);
         
         Assert.Multiple(
             () => Assert.False(hasBeenAdded),
-            () => Assert.Equal(tags, tagList.Tags));
+            () => Assert.Equal(existingTags, tagList.Tags));
     }
 
     [Fact]
     public void RemoveTag_when_TagExists__ReturnsTrueAndRemovesTag()
     {
-        var existingTags = new [] {"TestTag", "TestTag2"};
-        var expectedTags = new [] {"TestTag"};
-
+        var existingTagMock = new Mock<ITag>();
+        var existingTags = new [] {existingTagMock.Object};
+        
         ITagList tagList = new TagList(existingTags);
-        var hasBeenRemoved = tagList.RemoveTag("TestTag2");
+        var hasBeenRemoved = tagList.RemoveTag(existingTagMock.Object);
         
         Assert.Multiple(
             () => Assert.True(hasBeenRemoved),
-            () => Assert.Equal(expectedTags, tagList.Tags));
+            () => Assert.Empty(tagList.Tags));
     }
     
     [Fact]
     public void RemoveTag_when_TagDoesNotExist__ReturnsFalse()
     {
-        var tags = new [] {"TestTag", "TestTag2"};
+        var existingTags = new List<ITag> {new Mock<ITag>().Object};
         
-        ITagList tagList = new TagList(tags);
-        var hasBeenRemoved = tagList.RemoveTag("TestTag3");
-        
+        ITagList tagList = new TagList(existingTags);
+        var hasBeenRemoved = tagList.RemoveTag(new Mock<ITag>().Object);
+
+
         Assert.Multiple(
             () => Assert.False(hasBeenRemoved),
-            () => Assert.Equal(tags, tagList.Tags));
+            () => Assert.Equal(existingTags, tagList.Tags));
     }
 }

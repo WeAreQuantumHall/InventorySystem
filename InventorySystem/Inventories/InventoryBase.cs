@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Inventories;
+using InventorySystem.Abstractions.Items;
+using InventorySystem.Abstractions.Tags;
+using InventorySystem.ActionResults;
 using static InventorySystem.Abstractions.Enums.InventoryAction;
 
-namespace InventorySystem.Abstractions
+namespace InventorySystem.Inventories
 {
     /// <inheritdoc />
     public abstract class InventoryBase : IInventory
@@ -14,28 +18,23 @@ namespace InventorySystem.Abstractions
             Name = name;
             Id = Guid.NewGuid(); 
             Capacity = capacity < 1 ? 0 : capacity;
+            Items.EnsureCapacity(capacity);
         }
         
-        protected Dictionary<Guid, IItem> Items { get; } = new Dictionary<Guid, IItem>();
+        protected Dictionary<Guid, IItem> Items { get; set; } = new Dictionary<Guid, IItem>();
         
         public Guid Id { get; }
         public string Name { get; private set; }
         public int Capacity { get; }
         
-        public void SetName(string name) => Name = name;
+        public virtual int Count => Items.Count;
+        public virtual void SetName(string name) => Name = name;
 
-        /// <summary>
-        /// Tries to add a stackable item to <see cref="Items"/> dictionary.
-        /// </summary>
-        /// <param name="item">The item to be added to the dictionary.</param>
-        /// <param name="items">The list of times to be stacked or added on.</param>
-        /// <param name="inventoryKeyPredicate"></param>
-        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieval operation.</returns>
         protected virtual (InventoryAction action, IItem? item) TryAddStackableItem(IItem item)
         {
             var hasSpilled = false;
  
-            foreach (var similarItem in TryGetSimilarStackableItems(item.Identifier))
+            foreach (var similarItem in TryGetSimilarStackableItems(item.Name))
             {
                 var remainingStack = similarItem.AddToStack(item.Stack);
                 item.AddToStack(remainingStack);
@@ -59,18 +58,6 @@ namespace InventorySystem.Abstractions
                 ? (ItemRetrieved, retrievedItem)
                 : (ItemNotFound, null);
         
-        protected virtual (InventoryAction action, IEnumerable<IItem> item)TryGetItemsFromDictionaryByCategory(
-                ItemCategory category)
-        {
-            var retrievedItems = Items.Values
-                .Where(item => item.ItemCategory == category)
-                .ToList();
-   
-            
-            return retrievedItems.Any()
-                ? (ItemsRetrieved, retrievedItems)
-                : (ItemsNotFound, Enumerable.Empty<IItem>());
-        }
 
         protected virtual (InventoryAction action, IEnumerable<IItem> item) TryGetAllItemsFromDictionary()
         {
@@ -82,9 +69,9 @@ namespace InventorySystem.Abstractions
                 : (ItemsNotFound, Enumerable.Empty<IItem>());
         }
         protected virtual IEnumerable<IItem> TryGetSimilarStackableItems(
-            string identifier)  
+            string name)  
             => Items.Values
-                .Where(i => i.Identifier == identifier && i.CanBeStackedOn);
+                .Where(i => i.Name == name && i.CanBeStackedOn);
 
         protected virtual (InventoryAction action, IItem item) TryAddItemToDictionary(IItem item)
             => (IsAtCapacity, Items.TryAdd(item.Id, item)) switch
@@ -105,18 +92,14 @@ namespace InventorySystem.Abstractions
             return (ItemStackSplit, splitItem);
         }
 
-        protected virtual (InventoryAction action, IItem? item) TryRemoveItemFromDictionary<TKeyType>(
-            Dictionary<TKeyType, IItem> items,
-            TKeyType key) where TKeyType: IComparable
-            => items.Remove(key, out var item) 
+        protected virtual (InventoryAction action, IItem? item) TryRemoveItemFromDictionary(Guid key)
+            => Items.Remove(key, out var item) 
                 ? (ItemRemoved, item) 
-                : (ItemNotRemoved, null);
+                : (ItemNotFound, null);
 
-        protected virtual (InventoryAction aaction, IEnumerable<IItem> items) TryGetItemsFromDictionaryByTag<TKeyType>(
-            Dictionary<TKeyType, IItem> items,
-            string tag) where TKeyType: IComparable
+        protected virtual (InventoryAction action, IEnumerable<IItem> items) TryGetItemsFromDictionaryByTag(ITag tag)
         {
-            var retrievedItems = items.Values
+            var retrievedItems = Items.Values
                 .Where(item => item.ContainsTag(tag))
                 .ToList();
 
@@ -125,15 +108,42 @@ namespace InventorySystem.Abstractions
                 : (ItemsNotFound, Enumerable.Empty<IItem>()); 
         }
         
-        
-        public abstract int Count { get; }
         public abstract bool IsAtCapacity { get; }
-        public abstract IInventoryActionResult TryAddItem(IItem item);
-        public abstract IInventoryActionResult TryGetAllItems();
-        public abstract IInventoryActionResult TryGetItem(Guid key);
-        public abstract IInventoryActionResult TrySplitItemStack(Guid id, int splitAmount);
-        public abstract IInventoryActionResult TryRemoveItem(Guid id);
-        public abstract IInventoryActionResult TryGetItemsByCategory(ItemCategory category);
-        public abstract IInventoryActionResult TryGetItemsByTag(string tag);
+        
+        public virtual IInventoryActionResult TryAddItem(IItem item)
+        {
+            var (action, returnedItem) = TryAddItemToDictionary(item);
+            return new InventoryActionResult(action, returnedItem);
+        }
+        
+        public virtual IInventoryActionResult TryGetAllItems()
+        {
+            var (action, result) = TryGetAllItemsFromDictionary();
+            return new InventoryActionResult(action, result);
+        } 
+        
+        public virtual IInventoryActionResult TryGetItem(Guid id) 
+        {
+            var (action, returnedItem) = TryGetItemFromDictionary(id);
+            return new InventoryActionResult(action, returnedItem);
+        }
+        
+        public virtual IInventoryActionResult TrySplitItemStack(Guid id, int splitAmount)
+        {
+            var (action, result) = TrySplitItemInDictionary(id, splitAmount);
+            return new InventoryActionResult(action, result);
+        }
+
+        public virtual IInventoryActionResult TryRemoveItem(Guid id)
+        {
+            var (action, item) = TryRemoveItemFromDictionary(id);
+            return new InventoryActionResult(action, item); 
+        }
+        
+        public virtual IInventoryActionResult TryGetItemsByTag(ITag tag)
+        {
+            var (action, item) = TryGetItemsFromDictionaryByTag(tag);
+            return new InventoryActionResult(action, item); 
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Items;
+using InventorySystem.Abstractions.Tags;
 
-namespace InventorySystem.Abstractions
+namespace InventorySystem.Abstractions.Inventories
 {
     public interface IInventory
     {
@@ -50,18 +52,18 @@ namespace InventorySystem.Abstractions
         IInventoryActionResult TryAddItem(IItem item);
 
         /// <summary>
-        /// Tries to get all items from the inventory.
-        /// </summary>
-        /// <returns>>An <see cref="IInventoryActionResult"/> indicating the result of the add operation.</returns>
-        IInventoryActionResult TryGetAllItems();
-
-        /// <summary>
         /// Tries to retrieve an item from the inventory by its Id.
         /// </summary>
         /// <param name="id">The Id of the item to retrieve.</param>
         /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieval operation.
         /// </returns>
         IInventoryActionResult TryGetItem(Guid id);
+        
+        /// <summary>
+        /// Tries to get all items from the inventory.
+        /// </summary>
+        /// <returns>>An <see cref="IInventoryActionResult"/> indicating the result of the add operation.</returns>
+        IInventoryActionResult TryGetAllItems();
 
         /// <summary>
         /// Tries to split the stack of a specific item in the inventory into a new item.
@@ -78,13 +80,6 @@ namespace InventorySystem.Abstractions
         /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the remove operation.</returns>
         IInventoryActionResult TryRemoveItem(Guid id);
 
-        /// <summary>
-        /// Tries to get all items in the inventory for a provided category.
-        /// </summary>
-        /// <param name="category">The Enum Values to search for</param>
-        /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieve operation.</returns>
-        IInventoryActionResult TryGetItemsByCategory(ItemCategory category);
-
-        IInventoryActionResult TryGetItemsByTag(string tag);
+        IInventoryActionResult TryGetItemsByTag(ITag tag);
     }
 }

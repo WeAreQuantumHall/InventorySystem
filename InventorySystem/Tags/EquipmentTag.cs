@@ -1,20 +1,47 @@
-﻿namespace InventorySystem.Tags
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using InventorySystem.Abstractions.Tags;
+
+namespace InventorySystem.Tags
 {
     public static class EquipmentTag
     {
-        public static readonly string Head = nameof(Head);
-        public static readonly string Chest = nameof(Chest);
-        public static readonly string Shoulders = nameof(Shoulders);
-        public static readonly string Hands = nameof(Hands);
-        public static readonly string Belt = nameof(Belt);
-        public static readonly string Legs = nameof(Legs);
-        public static readonly string Feet = nameof(Feet);
-        public static readonly string OffHand = nameof(OffHand);
-        public static readonly string MainHand = nameof(MainHand);
-        public static readonly string Neck = nameof(Neck);
-        public static readonly string LeftEar = nameof(LeftEar);
-        public static readonly string RightEar = nameof(RightEar);
+        private static readonly ITagList TagList;
 
-        public static bool IsMember(string tag) => TagUtils.EquipmentTags.ContainsTag(tag);
+        public static readonly ITag Head = new Tag(nameof(Head), GenerateGuid(1));
+        public static readonly ITag Chest = new Tag(nameof(Chest), GenerateGuid(1));
+        public static readonly ITag Shoulders = new Tag(nameof(Shoulders), GenerateGuid(1));
+        public static readonly ITag Hands = new Tag(nameof(Hands), GenerateGuid(1));
+        public static readonly ITag Belt = new Tag(nameof(Belt), GenerateGuid(1));
+        public static readonly ITag Legs = new Tag(nameof(Legs), GenerateGuid(1));
+        public static readonly ITag Feet = new Tag(nameof(Feet), GenerateGuid(1));
+        public static readonly ITag Offhand = new Tag(nameof(Offhand), GenerateGuid(1));
+        public static readonly ITag MainHand = new Tag(nameof(MainHand), GenerateGuid(1));
+        public static readonly ITag Neck = new Tag(nameof(Neck), GenerateGuid(1));
+        public static readonly ITag LeftEar = new Tag(nameof(LeftEar), GenerateGuid(1));
+        public static readonly ITag RightEar = new Tag(nameof(RightEar), GenerateGuid(1));
+
+        static EquipmentTag()
+        {
+            TagList = new TagList( new [] 
+            {
+                Head, Chest, Shoulders, Hands, Belt, Legs, Feet, Offhand, MainHand, Neck, LeftEar, RightEar
+            });
+        }
+        
+        public static bool IsMember(ITag tag) => TagList.ContainsTag(tag);
+        public static IEnumerable<ITag> GetMembers(ITagList tagList) => tagList.Where(IsMember);
+
+        public static IReadOnlyList<ITag> Tags => TagList.Tags; 
+        
+        private static Guid GenerateGuid(int id)
+        {
+            
+            var stringSuffix = id.ToString();
+            var stringBody = new string('0', 12 - stringSuffix.Length);
+
+            return new Guid($"00000001-0000-0000-0000-{stringBody}{stringSuffix}");
+        }
     }
 }

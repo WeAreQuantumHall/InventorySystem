@@ -1,47 +1,78 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using InventorySystem.Abstractions.Tags;
 using InventorySystem.Tags;
+using Moq;
 using Xunit;
 
 namespace InventorySystem.Tests.Tags;
 
 public class EquipmentTagTests
 {
-    public static IEnumerable<object[]> TagData =>
-        TagUtils.EquipmentTags.Tags.Select(t => new object[] {t});
-        
- 
-    
-    
-    [Theory]
-    [MemberData(nameof(TagData))]
-    public void IsMember_whenTagFound__returnsTrue(string tag)
+    [Fact]
+    public void Instantiate__SetsExpectedEquipmentTags()
     {
-        Assert.True(EquipmentTag.IsMember(tag));
+        var expectedTags = new List<ITag> 
+        {
+            EquipmentTag.Head, 
+            EquipmentTag.Chest, 
+            EquipmentTag.Shoulders, 
+            EquipmentTag.Hands,
+            EquipmentTag.Belt,
+            EquipmentTag.Legs,
+            EquipmentTag.Feet,
+            EquipmentTag.Offhand,
+            EquipmentTag.MainHand,
+            EquipmentTag.Neck,
+            EquipmentTag.LeftEar,
+            EquipmentTag.RightEar
+        };
+
+        var tags = EquipmentTag.Tags;
+        
+        Assert.Equal(expectedTags, tags);
     }
 
-
-    public static IEnumerable<object[]> MappingData =>
-        new[]
-        {
-            new object[] {EquipmentTag.Head, "Head"},
-            new object[] {EquipmentTag.Chest, "Chest"},
-            new object[] {EquipmentTag.Shoulders, "Shoulders"},
-            new object[] {EquipmentTag.Hands, "Hands"},
-            new object[] {EquipmentTag.Belt, "Belt"},
-            new object[] {EquipmentTag.Legs, "Legs"},
-            new object[] {EquipmentTag.Feet, "Feet"},
-            new object[] {EquipmentTag.MainHand, "MainHand"},
-            new object[] {EquipmentTag.OffHand, "OffHand"},
-            new object[] {EquipmentTag.Neck, "Neck"},
-            new object[] {EquipmentTag.LeftEar, "LeftEar"},
-            new object[] {EquipmentTag.RightEar, "RightEar"}
-        };
-    
-    [Theory]
-    [MemberData(nameof(MappingData))]
-    public void Instantiate__SetsExpectedEquipmentTags(string value, string expected)
+    [Fact]
+    public void IsMember_whenIsEquipmentTag__ReturnsTrue()
     {
-        Assert.Equal(expected, value);
+        var isMember = EquipmentTag.IsMember(EquipmentTag.Head);
+        
+        Assert.True(isMember);
+    }
+    
+    [Fact]
+    public void IsMember_whenIsNotEquipmentTag__ReturnsFalse()
+    {
+        var tagMock = new Mock<ITag>();
+        
+        var isMember = EquipmentTag.IsMember(tagMock.Object);
+        
+        Assert.False(isMember);
+    }
+
+    [Fact]
+    public void GetMembers_when_NoMatchingTagsFound__ReturnsEmptyEnumerable()
+    {
+        var tagListMock = new Mock<ITagList>();
+        tagListMock.Setup(tagList => tagList.GetEnumerator())
+            .Returns(new List<ITag>().GetEnumerator());
+        
+        var members = EquipmentTag.GetMembers(tagListMock.Object);
+        
+        Assert.Empty(members);
+    }
+
+    [Fact]
+    public void GetMembers_when_ItemsAreFound__ReturnsExpectedEnumerable()
+    {
+        var tagList = new List<ITag> {EquipmentTag.Head, EquipmentTag.Belt, new Mock<ITag>().Object };
+        var expectedTagList = new List<ITag> {EquipmentTag.Head, EquipmentTag.Belt }; 
+        var tagListMock = new Mock<ITagList>();
+        tagListMock.Setup(tl => tl.GetEnumerator())
+            .Returns(tagList.GetEnumerator());
+
+        var members = EquipmentTag.GetMembers(tagListMock.Object);
+        
+        Assert.Equivalent(expectedTagList, members);
     }
 }

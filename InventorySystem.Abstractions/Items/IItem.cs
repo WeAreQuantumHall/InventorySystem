@@ -1,7 +1,7 @@
 ﻿using System;
-using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Tags;
 
-namespace InventorySystem.Abstractions
+namespace InventorySystem.Abstractions.Items
 {
     /// <summary>
     /// Represents an item that can be part of an inventory.
@@ -14,19 +14,9 @@ namespace InventorySystem.Abstractions
         Guid Id { get; }
 
         /// <summary>
-        /// Gets the identifier of the item.
-        /// </summary>
-        string Identifier { get; }
-
-        /// <summary>
         /// Gets the name of the item.
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// Gets the Item Category of the Item.
-        /// </summary>
-        ItemCategory ItemCategory { get; }
 
         /// <summary>
         /// Gets whether the item can be stacked.

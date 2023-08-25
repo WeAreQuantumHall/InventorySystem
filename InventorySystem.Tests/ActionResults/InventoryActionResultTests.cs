@@ -1,5 +1,6 @@
-﻿using InventorySystem.Abstractions;
-using InventorySystem.Abstractions.Enums;
+﻿using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Inventories;
+using InventorySystem.Abstractions.Items;
 using InventorySystem.ActionResults;
 using Moq;
 using Xunit;
@@ -14,7 +15,7 @@ public class InventoryActionResultTests
         const InventoryAction result = InventoryAction.ItemAdded;
         var item = new Mock<IItem>();
         
-        var actionResult = new InventoryActionResult(result, item.Object);
+        IInventoryActionResult actionResult = new InventoryActionResult(result, item.Object);
 
         Assert.Multiple(
             () => Assert.Equal(result, actionResult.Result),

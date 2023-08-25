@@ -1,33 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using InventorySystem.Abstractions;
+using InventorySystem.Abstractions.Tags;
 
 namespace InventorySystem.Tags
 {
     internal class TagList : ITagList
     {
-        private List<string> TagCollection { get; }
-        
-        public IReadOnlyList<string> Tags => TagCollection;
+        private readonly List<ITag> _tagCollection;
+        public IReadOnlyList<ITag> Tags => _tagCollection;
 
-        public TagList(IEnumerable<string> tags) => TagCollection = tags.ToList();
+        public TagList(IEnumerable<ITag> tags) => _tagCollection = tags.ToList();
 
-        public TagList() => TagCollection = new List<string>();
+        public TagList() => _tagCollection = new List<ITag>();
 
-        public bool AddTag(string tag)
+        public bool AddTag(ITag tag)
         {
             if (ContainsTag(tag)) return false;
 
-            TagCollection.Add(tag);
+            _tagCollection.Add(tag);
             return true;
         }
 
-        public bool RemoveTag(string tag) => TagCollection.Remove(tag);
+        public bool RemoveTag(ITag tag)
+            => _tagCollection.Remove(tag);
 
-        public bool ContainsTag(string tag)
-        {
-            var x = TagCollection.Exists(t => t == tag);
-            return x;
-        } 
+        public bool ContainsTag(ITag tag)
+            => _tagCollection.Exists(t => t == tag);
+
+        public IEnumerator<ITag> GetEnumerator() => _tagCollection.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

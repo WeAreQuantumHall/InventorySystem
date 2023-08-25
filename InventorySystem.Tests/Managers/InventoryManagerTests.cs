@@ -1,9 +1,10 @@
 ﻿using System;
-using InventorySystem.Abstractions;
+using InventorySystem.Abstractions.Items;
+using InventorySystem.Managers;
 using Moq;
 using Xunit;
 
-namespace InventorySystem.Tests;
+namespace InventorySystem.Tests.Managers;
 
 public class InventoryManagerTests
 {

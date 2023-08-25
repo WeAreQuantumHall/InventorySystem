@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using InventorySystem.Abstractions;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Inventories;
 using InventorySystem.Inventories;
 
-namespace InventorySystem
+namespace InventorySystem.Managers
 {
     /// <summary>
     /// Manages a collection of inventories.
