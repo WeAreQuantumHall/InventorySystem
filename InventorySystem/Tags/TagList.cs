@@ -6,28 +6,28 @@ namespace InventorySystem.Tags
 {
     internal class TagList : ITagList
     {
-        private List<string> ListOfTags { get; }
+        private List<string> TagCollection { get; }
         
-        public IReadOnlyList<string> Tags => ListOfTags;
+        public IReadOnlyList<string> Tags => TagCollection;
 
-        public TagList(IEnumerable<string> tags)
-            => ListOfTags = tags.ToList();
+        public TagList(IEnumerable<string> tags) => TagCollection = tags.ToList();
 
-        public TagList() 
-            => ListOfTags = new List<string>();
+        public TagList() => TagCollection = new List<string>();
 
         public bool AddTag(string tag)
         {
-            if (IsMember(tag)) return false;
+            if (ContainsTag(tag)) return false;
 
-            ListOfTags.Add(tag);
+            TagCollection.Add(tag);
             return true;
         }
 
-        public bool RemoveTag(string tag) 
-            => ListOfTags.Remove(tag);
+        public bool RemoveTag(string tag) => TagCollection.Remove(tag);
 
-        public bool IsMember(string tag) 
-            => ListOfTags.Exists(t => t == tag);
+        public bool ContainsTag(string tag)
+        {
+            var x = TagCollection.Exists(t => t == tag);
+            return x;
+        } 
     }
 }

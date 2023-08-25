@@ -1,6 +1,7 @@
 ﻿using System;
 using InventorySystem.Abstractions;
 using InventorySystem.Abstractions.Enums;
+using Moq;
 using Xunit;
 
 namespace InventorySystem.Tests;
@@ -11,21 +12,20 @@ public class ItemTests
     private const string Name = "TEST_ITEM_NAME";
     private const string Identifier = "TEST_ITEM_IDENTIFIER";
     private const ItemCategory Category = ItemCategory.Equipment;
-    private static readonly string[] TagList = {"TEST_TAG_1", "TEST_TAG_2"};
-
+    
     [Fact]
     public void New__ReturnsCorrectlyPopulatedItem()
     {
         const bool stackable = false;
         const int stack = 1;
         const int maxStack = 1;
+        var tagListMock = new Mock<ITagList>();    
         
-
-        IItem item = new Item(Identifier, Name, Category, TagList)
+        IItem item = new Item(Identifier, Name, Category, tagListMock.Object)
         {
             Stackable = stackable,
             Stack = stack,
-            MaxStack = maxStack,
+            MaxStack = maxStack
         };
 
         Assert.Multiple(
@@ -36,7 +36,7 @@ public class ItemTests
             () => Assert.Equal(stack, item.Stack),
             () => Assert.Equal(maxStack, item.MaxStack),
             () => Assert.Equal(Category, item.ItemCategory),
-            () => Assert.Equal(TagList, item.Tags));
+            () => Assert.Equal(tagListMock.Object, item.TagList));
     }
 
     [Fact]
@@ -213,54 +213,86 @@ public class ItemTests
     }
 
     [Fact]
-    public void AddTag_when_CanAddTag_ReturnsTrue_and_AddsTag()
+    public void AddTag_when_CanAddTag__ReturnsTrue()
     {
-        var expectedTagList = new[] {"TEST_TAG_1", "TEST_TAG_2", "TEST_TAG_3"};
-        IItem item = new Item(Identifier, Name, Category, TagList);
+        var tagListMock = new Mock<ITagList>();
+        tagListMock
+            .Setup(item => item.AddTag(It.IsAny<string>()))
+            .Returns(true);
+        
+        IItem item = new Item(Identifier, Name, Category, tagListMock.Object);
+        var hasBeenAdded = item.AddTag(string.Empty);
 
-        var hasBeenAdded = item.AddTag("TEST_TAG_3");
-
-        Assert.Multiple(
-            () => Assert.True(hasBeenAdded),
-            () => Assert.Equal(expectedTagList, item.Tags));
+        Assert.True(hasBeenAdded);
     }
     
     [Fact]
-    public void AddTag_when_CannotAddTag__ReturnsFalse_and_DoesNotAddTag()
+    public void AddTag_when_CannotAddTag__ReturnsFalse()
     {
-        var expectedTagList = new[] {"TEST_TAG_1", "TEST_TAG_2"};
-        IItem item = new Item(Identifier, Name, Category, TagList);
+        var tagListMock = new Mock<ITagList>();
+        tagListMock
+            .Setup(item => item.RemoveTag(It.IsAny<string>()))
+            .Returns(false);
+        
+        IItem item = new Item(Identifier, Name, Category, tagListMock.Object);
+        var hasBeenAdded = item.AddTag(string.Empty);
 
-        var hasBeenAdded = item.AddTag("TEST_TAG_2");
-
-        Assert.Multiple(
-            () => Assert.False(hasBeenAdded),
-            () => Assert.Equal(expectedTagList, item.Tags));
+        Assert.False(hasBeenAdded);
     }
     
     [Fact]
-    public void RemoveTag_when_CanRemoveTag_ReturnsTrue_and_RemovesTag()
+    public void RemoveTag_when_CanRemoveTag__ReturnsTrue()
     {
-        var expectedTagList = new[] {"TEST_TAG_1"};
-        IItem item = new Item(Identifier, Name, Category, TagList);
+        var tagListMock = new Mock<ITagList>();
+        tagListMock
+            .Setup(item => item.RemoveTag(It.IsAny<string>()))
+            .Returns(true);
+        
+        IItem item = new Item(Identifier, Name, Category, tagListMock.Object);
+        var hasBeenRemoved = item.RemoveTag(string.Empty);
 
-        var hasBeenRemoved = item.RemoveTag("TEST_TAG_2");
-
-        Assert.Multiple(
-            () => Assert.True(hasBeenRemoved),
-            () => Assert.Equal(expectedTagList, item.Tags));
+        Assert.True(hasBeenRemoved);
     }
     
     [Fact]
     public void RemoveTag_when_CannotRemoveTag__ReturnsFalse()
     {
-        var expectedTagList = new[] {"TEST_TAG_1", "TEST_TAG_2"};
-        IItem item = new Item(Identifier, Name, Category, TagList);
+        var tagListMock = new Mock<ITagList>();
+        tagListMock
+            .Setup(item => item.RemoveTag(It.IsAny<string>()))
+            .Returns(false);
+        
+        IItem item = new Item(Identifier, Name, Category, tagListMock.Object);
+        var hasBeenRemoved = item.RemoveTag(string.Empty);
 
-        var hasBeenRemoved = item.RemoveTag("TEST_TAG_3");
+        Assert.False(hasBeenRemoved);
+    }
 
-        Assert.Multiple(
-            () => Assert.False(hasBeenRemoved),
-            () => Assert.Equal(expectedTagList, item.Tags));
+    [Fact]
+    public void ContainsTag_when_TagListContainsTag__ReturnsTrue()
+    {
+        var tagListMock = new Mock<ITagList>();
+        tagListMock
+            .Setup(item => item.ContainsTag(It.IsAny<string>()))
+            .Returns(true);
+        
+        IItem item = new Item(Identifier, Name, Category, tagListMock.Object);
+        var hasBeenRemoved = item.ContainsTag(string.Empty);
+
+        Assert.True(hasBeenRemoved);
+    }
+    
+    [Fact]
+    public void ContainsTag_when_TagListDoesNotContainsTag__ReturnsFalse()
+    {
+        var tagListMock = new Mock<ITagList>();
+        tagListMock
+            .Setup(item => item.ContainsTag(It.IsAny<string>()))
+            .Returns(false);
+        
+        IItem item = new Item(Identifier, Name, Category, tagListMock.Object);
+        var hasBeenRemoved = item.ContainsTag(string.Empty);
+
+        Assert.False(hasBeenRemoved);
     }
 }

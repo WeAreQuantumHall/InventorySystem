@@ -53,8 +53,8 @@ namespace InventorySystem.Abstractions
         /// Tries to get all items from the inventory.
         /// </summary>
         /// <returns>>An <see cref="IInventoryActionResult"/> indicating the result of the add operation.</returns>
-        IInventoryActionResult GetAllItems(); 
-        
+        IInventoryActionResult TryGetAllItems();
+
         /// <summary>
         /// Tries to retrieve an item from the inventory by its Id.
         /// </summary>
@@ -85,6 +85,6 @@ namespace InventorySystem.Abstractions
         /// <returns>An <see cref="IInventoryActionResult"/> indicating the result of the retrieve operation.</returns>
         IInventoryActionResult TryGetItemsByCategory(ItemCategory category);
 
-        IInventoryActionResult SearchByTag(string tag);
+        IInventoryActionResult TryGetItemsByTag(string tag);
     }
 }

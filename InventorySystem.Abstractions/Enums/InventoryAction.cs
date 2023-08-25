@@ -63,7 +63,7 @@
         /// <summary>
         /// An item is not an equipment item and cannot be added to the inventory
         /// </summary>
-        NotAnValidEquipmentItem,
+        InvalidItemCategory,
         
         /// <summary>
         /// An item was swapped with another item in the stack
@@ -80,9 +80,6 @@
         /// </summary>
         ItemsNotFound,
         
-        /// <summary>
-        /// The provided search category cannot be used to search this inventory
-        /// </summary>
-        SearchCategoryInvalid
+        NoMatchingSlots
     }
 }

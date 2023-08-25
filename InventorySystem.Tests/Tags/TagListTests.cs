@@ -30,7 +30,7 @@ public class TagListTests
         var expectedTags = new [] {"TestTag", "TestTag2"};
 
         ITagList tagList = new TagList(expectedTags);
-        var isMember = tagList.IsMember("TestTag");
+        var isMember = tagList.ContainsTag("TestTag");
 
         Assert.True(isMember);
     }
@@ -41,7 +41,7 @@ public class TagListTests
         var expectedTags = new [] {"TestTag", "TestTag2"};
 
         ITagList tagList = new TagList(expectedTags);
-        var isMember = tagList.IsMember("TestTag3");
+        var isMember = tagList.ContainsTag("TestTag3");
 
         Assert.False(isMember);
     }

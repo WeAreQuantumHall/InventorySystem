@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using InventorySystem.Abstractions;
-using InventorySystem.Abstractions.Enums;
 
 namespace InventorySystem.Tags
 {

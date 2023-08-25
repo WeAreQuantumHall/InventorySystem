@@ -15,6 +15,6 @@
         public static readonly string LeftEar = nameof(LeftEar);
         public static readonly string RightEar = nameof(RightEar);
 
-        public static bool IsMember(string tag) => TagUtils.EquipmentTags.IsMember(tag);
+        public static bool IsMember(string tag) => TagUtils.EquipmentTags.ContainsTag(tag);
     }
 }

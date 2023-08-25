@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using InventorySystem.Abstractions.Enums;
 
 namespace InventorySystem.Abstractions
@@ -7,7 +6,7 @@ namespace InventorySystem.Abstractions
     /// <summary>
     /// Represents an item that can be part of an inventory.
     /// </summary>
-    public interface IItem
+    public interface IItem : ITagMember
     {
         /// <summary>
         /// Gets the unique identifier of the item.
@@ -28,8 +27,6 @@ namespace InventorySystem.Abstractions
         /// Gets the Item Category of the Item.
         /// </summary>
         ItemCategory ItemCategory { get; }
-
-        IReadOnlyList<string> Tags { get; }
 
         /// <summary>
         /// Gets whether the item can be stacked.
@@ -64,9 +61,5 @@ namespace InventorySystem.Abstractions
         /// <param name="splitAmount">The stack amount of the new item.</param>
         /// <returns>The new item with requested stack amount.</returns>
         IItem SplitStack(int splitAmount);
-
-        bool AddTag(string tag);
-
-        bool RemoveTag(string tag);
     }
 }

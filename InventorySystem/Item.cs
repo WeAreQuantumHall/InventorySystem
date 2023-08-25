@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using InventorySystem.Abstractions;
 using InventorySystem.Abstractions.Enums;
@@ -10,7 +7,6 @@ using InventorySystem.Tags;
 [assembly: InternalsVisibleTo("InventorySystem.Tests")]
 namespace InventorySystem
 {
-    /// <inheritdoc />
     internal class Item : IItem
     {
 
@@ -38,8 +34,7 @@ namespace InventorySystem
         /// <inheritdoc />
         public ItemCategory ItemCategory { get; }
 
-        private ITagList TagList { get; }
-        public IReadOnlyList<string> Tags => TagList.Tags;
+        public ITagList TagList { get; }
 
         /// <inheritdoc />
         public int AddToStack(int amount)
@@ -62,13 +57,13 @@ namespace InventorySystem
         /// <param name="name">The name of the item.</param>
         /// <param name="category"></param>
         /// <param name="tagList"></param>
-        public Item(string identifier, string name, ItemCategory category, IEnumerable<string>? tagList = null)
+        public Item(string identifier, string name, ItemCategory category, ITagList? tagList = null)
         {
             Id = Guid.NewGuid();
             Identifier = identifier;
             Name = name;
             ItemCategory = category;
-            TagList = tagList == null ? new TagList() : new TagList(tagList);
+            TagList = tagList ?? new TagList();
         }
         
         /// <inheritdoc />
@@ -76,7 +71,7 @@ namespace InventorySystem
         {
             if (!Stackable || Stack == 1 || splitAmount >= Stack) return this;
 
-            var splitItem = new Item(Identifier, Name, ItemCategory, Tags)
+            var splitItem = new Item(Identifier, Name, ItemCategory, new TagList(TagList.Tags))
             {
                 Stackable = Stackable,
                 Stack = splitAmount,
@@ -88,6 +83,9 @@ namespace InventorySystem
         }
 
         public bool AddTag(string tag) => TagList.AddTag(tag);
+        
         public bool RemoveTag(string tag) => TagList.RemoveTag(tag);
+        
+        public bool ContainsTag(string tag) => TagList.ContainsTag(tag);
     }
 }

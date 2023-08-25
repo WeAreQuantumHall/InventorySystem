@@ -21,6 +21,6 @@ namespace InventorySystem.Abstractions
         /// <summary>
         /// Gets the associated IEnumerable of IItems with the inventory action result (if applicable)
         /// </summary>
-        IEnumerable<IItem>? Items { get; }
+        IEnumerable<IItem> Items { get; }
     }
 }

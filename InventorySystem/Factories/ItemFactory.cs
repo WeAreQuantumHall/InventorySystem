@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using InventorySystem.Abstractions;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Tags;
 
 namespace InventorySystem.Factories
 {
@@ -18,7 +19,7 @@ namespace InventorySystem.Factories
         /// <param name="tags"></param>
         /// <returns>A new instance of an inventory item.</returns>
         public static IItem CreateItem(string identifier, string name, ItemCategory category, IEnumerable<string> tags)
-            => new Item(identifier, name, category, tags)
+            => new Item(identifier, name, category, new TagList(tags))
             {
                 Stackable = false,
                 Stack = 0,
@@ -38,7 +39,7 @@ namespace InventorySystem.Factories
         /// <returns>A new instance of a stackable item.</returns>
         public static IItem CreateStackableItem(string identifier, string name, bool stackable, int currentAmount,
             int maxAmount, ItemCategory category, IEnumerable<string> tags)
-            => new Item(identifier, name, category, tags)
+            => new Item(identifier, name, category, new TagList(tags))
             {
                 Stackable = stackable,
                 Stack = currentAmount,

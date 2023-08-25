@@ -32,7 +32,7 @@ public class ItemFactoryTests
             () => Assert.Equal(stackable, returnedItem.Stackable),
             () => Assert.Equal(currentAmount, returnedItem.Stack),
             () => Assert.Equal(maxAmount, returnedItem.MaxStack),
-            () => Assert.Equal(TagList, returnedItem.Tags));
+            () => Assert.Equal(TagList, returnedItem.TagList.Tags));
     }
     
     [Fact]
@@ -54,7 +54,7 @@ public class ItemFactoryTests
             () => Assert.Equal(stackable, returnedItem.Stackable),
             () => Assert.Equal(currentAmount, returnedItem.Stack),
             () => Assert.Equal(maxAmount, returnedItem.MaxStack),
-            () => Assert.Equal(TagList, returnedItem.Tags));
+            () => Assert.Equal(TagList, returnedItem.TagList.Tags));
         
     }
 }
