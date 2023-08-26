@@ -1,12 +1,12 @@
 ﻿using System;
-using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Tags;
 
-namespace InventorySystem.Abstractions
+namespace InventorySystem.Abstractions.Items
 {
     /// <summary>
     /// Represents an item that can be part of an inventory.
     /// </summary>
-    public interface IItem
+    public interface IItem : ITagMember
     {
         /// <summary>
         /// Gets the unique identifier of the item.
@@ -14,19 +14,9 @@ namespace InventorySystem.Abstractions
         Guid Id { get; }
 
         /// <summary>
-        /// Gets the identifier of the item.
-        /// </summary>
-        string Identifier { get; }
-
-        /// <summary>
         /// Gets the name of the item.
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// Gets the EquipmentCategory of the Item.
-        /// </summary>
-        EquipmentCategory EquipmentCategory { get; }
 
         /// <summary>
         /// Gets whether the item can be stacked.

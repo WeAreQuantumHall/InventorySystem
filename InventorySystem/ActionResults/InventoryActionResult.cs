@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
-using InventorySystem.Abstractions;
+using System.Linq;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Inventories;
+using InventorySystem.Abstractions.Items;
 
 namespace InventorySystem.ActionResults
 {
@@ -14,7 +16,7 @@ namespace InventorySystem.ActionResults
         public IItem? Item { get; }
 
         /// <inheritdoc />
-        public IEnumerable<IItem>? Items { get; }
+        public IEnumerable<IItem> Items { get; } = Enumerable.Empty<IItem>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InventoryActionResult"/> class.

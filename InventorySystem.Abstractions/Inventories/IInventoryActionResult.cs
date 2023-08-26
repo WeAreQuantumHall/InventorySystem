@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using InventorySystem.Abstractions.Enums;
+using InventorySystem.Abstractions.Items;
 
-namespace InventorySystem.Abstractions
+namespace InventorySystem.Abstractions.Inventories
 {
     /// <summary>
     /// Represents the result of an inventory action, along with an optional associated item.
@@ -21,6 +22,6 @@ namespace InventorySystem.Abstractions
         /// <summary>
         /// Gets the associated IEnumerable of IItems with the inventory action result (if applicable)
         /// </summary>
-        IEnumerable<IItem>? Items { get; }
+        IEnumerable<IItem> Items { get; }
     }
 }

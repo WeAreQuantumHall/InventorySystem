@@ -36,11 +36,6 @@
         ItemRemoved,
         
         /// <summary>
-        /// An item was not successfully removed from the inventory.
-        /// </summary>
-        ItemNotRemoved,
-
-        /// <summary>
         /// An item was successfully stacked onto another item in the inventory.
         /// </summary>
         ItemStacked,
@@ -63,7 +58,7 @@
         /// <summary>
         /// An item is not an equipment item and cannot be added to the inventory
         /// </summary>
-        NotAnValidEquipmentItem,
+        ItemEquipmentTagMissing,
         
         /// <summary>
         /// An item was swapped with another item in the stack
@@ -80,9 +75,8 @@
         /// </summary>
         ItemsNotFound,
         
-        /// <summary>
-        /// The provided search category cannot be used to search this inventory
-        /// </summary>
-        SearchCategoryInvalid
+        NoMatchingEquipmentSlots,
+        
+        StackableItemsNotAllowed
     }
 }
