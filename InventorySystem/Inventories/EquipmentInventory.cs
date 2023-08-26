@@ -91,7 +91,7 @@ namespace InventorySystem.Inventories
                 .FirstOrDefault(slot => slot.Value.Id == id)
                 .Key;
 
-            if (key == null) return (ItemNotFound, null);
+            if (key == Guid.Empty) return (ItemNotFound, null);
 
             var item = Items[key];
             Items[key] = Item.Empty;

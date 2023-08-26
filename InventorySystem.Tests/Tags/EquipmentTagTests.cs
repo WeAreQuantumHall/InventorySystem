@@ -54,8 +54,9 @@ public class EquipmentTagTests
     public void GetMembers_when_NoMatchingTagsFound__ReturnsEmptyEnumerable()
     {
         var tagListMock = new Mock<ITagList>();
-        tagListMock.Setup(tagList => tagList.GetEnumerator())
-            .Returns(new List<ITag>().GetEnumerator());
+        tagListMock
+            .Setup(tl => tl.Tags)
+            .Returns(new List<ITag>());
         
         var members = EquipmentTag.GetMembers(tagListMock.Object);
         
@@ -65,11 +66,22 @@ public class EquipmentTagTests
     [Fact]
     public void GetMembers_when_ItemsAreFound__ReturnsExpectedEnumerable()
     {
-        var tagList = new List<ITag> {EquipmentTag.Head, EquipmentTag.Belt, new Mock<ITag>().Object };
+        var tagList = new List<ITag> {EquipmentTag.Head, EquipmentTag.Belt, new Mock<ITag>().Object};
         var expectedTagList = new List<ITag> {EquipmentTag.Head, EquipmentTag.Belt }; 
         var tagListMock = new Mock<ITagList>();
-        tagListMock.Setup(tl => tl.GetEnumerator())
-            .Returns(tagList.GetEnumerator());
+        tagListMock
+            .Setup(tl => tl.Tags)
+            .Returns(tagList);
+        tagListMock
+            .Setup(tl => tl.ContainsTag(EquipmentTag.Belt))
+            .Returns(true);
+        tagListMock
+            .Setup(tl => tl.ContainsTag(It.IsAny<ITag>()))
+            .Returns(false);
+        tagListMock
+            .Setup(tl => tl.ContainsTag(EquipmentTag.Head))
+            .Returns(true);
+        
 
         var members = EquipmentTag.GetMembers(tagListMock.Object);
         

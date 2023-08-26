@@ -1,5 +1,7 @@
 ﻿using System;
 using InventorySystem.Abstractions.Items;
+using InventorySystem.Abstractions.Tags;
+using InventorySystem.Tags;
 using Moq;
 
 namespace InventorySystem.Tests.Data;
@@ -23,7 +25,6 @@ public static class MockItemData
             .Returns(maxStack);
         itemMock.Setup(item => item.CanBeStackedOn)
             .Returns(stackable && stack < maxStack);
-
         return itemMock;
     }
 }

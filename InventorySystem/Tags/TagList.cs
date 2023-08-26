@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using InventorySystem.Abstractions.Tags;
 
@@ -27,9 +26,5 @@ namespace InventorySystem.Tags
 
         public bool ContainsTag(ITag tag)
             => _tagCollection.Exists(t => t == tag);
-
-        public IEnumerator<ITag> GetEnumerator() => _tagCollection.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

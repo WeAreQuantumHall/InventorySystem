@@ -2,7 +2,7 @@
 
 namespace InventorySystem.Abstractions.Tags
 {
-    public interface ITagList : IEnumerable<ITag> 
+    public interface ITagList
     {
         IReadOnlyList<ITag> Tags { get; }
         bool AddTag(ITag tag);
