@@ -1,7 +1,6 @@
 ﻿using System;
 using InventorySystem.Abstractions.Items;
-using InventorySystem.Abstractions.Tags;
-using InventorySystem.Tags;
+
 using Moq;
 
 namespace InventorySystem.Tests.Data;

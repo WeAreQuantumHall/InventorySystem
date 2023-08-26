@@ -16,7 +16,8 @@ namespace InventorySystem.Items
             TagList = tagList ?? new TagList();
         }
         
-        public static IItem Empty = new Item("empty-item"); 
+
+        public static readonly IItem Empty = new Item("empty-item"); 
 
         /// <inheritdoc />
         public Guid Id { get; }
