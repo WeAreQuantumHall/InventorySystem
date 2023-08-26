@@ -1,4 +1,5 @@
 ﻿using System;
+using InventorySystem.Abstractions.Tags;
 using InventorySystem.Tags;
 using Xunit;
 
@@ -12,7 +13,7 @@ public class TagTests
         const string expectedTagName = "tag-name";
         var expectedIdentifier = Guid.NewGuid();
 
-        var tag = new Tag(expectedTagName, expectedIdentifier);
+        ITag tag = new Tag(expectedTagName, expectedIdentifier);
         
         Assert.Multiple(
             () => Assert.Equal(expectedTagName, tag.Name),
@@ -24,7 +25,7 @@ public class TagTests
     {
         const string expectedTagName = "tag-name";
         
-        var tag = new Tag(expectedTagName,  Guid.NewGuid());
+        ITag tag = new Tag(expectedTagName,  Guid.NewGuid());
         
         Assert.Equal(expectedTagName, tag.ToString());
     }
