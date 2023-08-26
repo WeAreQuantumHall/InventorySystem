@@ -16,6 +16,7 @@ namespace InventorySystem.Items
             TagList = tagList ?? new TagList();
         }
         
+
         public static readonly IItem Empty = new Item("empty-item"); 
 
         /// <inheritdoc />
