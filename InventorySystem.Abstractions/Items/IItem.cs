@@ -8,6 +8,7 @@ namespace InventorySystem.Abstractions.Items
     /// </summary>
     public interface IItem : ITagMember
     {
+        public static readonly IItem Empty = new EmptyItem();
         /// <summary>
         /// Gets the unique identifier of the item.
         /// </summary>
@@ -44,6 +45,8 @@ namespace InventorySystem.Abstractions.Items
         /// <param name="amount">The new stack amount.</param>
         /// <returns>The remaining stack which could not be added.</returns>
         int AddToStack(int amount);
+
+        int SetStack(int amount);
 
         /// <summary>
         /// Splits the item stack into new items.

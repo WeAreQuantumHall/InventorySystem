@@ -6,6 +6,11 @@
     public enum InventoryAction
     {
         /// <summary>
+        /// Default value for the enum, should not be used.
+        /// </summary>
+        None,
+        
+        /// <summary>
         /// An item was successfully added to the inventory.
         /// </summary>
         ItemAdded,
@@ -43,7 +48,7 @@
         /// <summary>
         /// An item was stacked onto another item, and the stack spilled, requiring an additional item to be added.
         /// </summary>
-        ItemStackedAndSpilled,
+        ItemStackedAndAdded,
 
         /// <summary>
         /// An item's stack was successfully split into two separate stacks in the inventory.
@@ -77,6 +82,13 @@
         
         NoMatchingEquipmentSlots,
         
-        StackableItemsNotAllowed
+        StackableItemsNotAllowed,
+        
+        SourceInventoryNotFound,
+        
+        TargetInventoryNotFound,
+        
+        ItemMovedBetweenInventories
+        
     }
 }

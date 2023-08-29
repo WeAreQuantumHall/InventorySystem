@@ -15,9 +15,6 @@ namespace InventorySystem.Items
             Name = name;
             TagList = tagList ?? new TagList();
         }
-        
-
-        public static readonly IItem Empty = new Item("empty-item"); 
 
         /// <inheritdoc />
         public Guid Id { get; }
@@ -53,8 +50,18 @@ namespace InventorySystem.Items
             return 0;
         }
 
+        public int SetStack(int amount)
+        {
+            if (amount > MaxStack)
+            {
+                Stack = MaxStack;
+                return amount - MaxStack;
+            }
 
-        
+            Stack = amount;
+            return 0;
+        }
+
         /// <inheritdoc />
         public IItem SplitStack(int splitAmount)
         {

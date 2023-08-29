@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using InventorySystem.Abstractions.Tags;
 using InventorySystem.Tags;
+using InventorySystem.Tests.AttributeTags;
 using Moq;
 using Xunit;
 
@@ -8,8 +9,8 @@ namespace InventorySystem.Tests.Tags;
 
 public class EquipmentTagTests
 {
-    [Fact]
-    public void Instantiate__SetsExpectedEquipmentTags()
+    [Constructor]
+    public void Equipment_tag_always_has_correct_equipment_tags_set()
     {
         var expectedTags = new List<ITag> 
         {
@@ -32,16 +33,16 @@ public class EquipmentTagTests
         Assert.Equal(expectedTags, tags);
     }
 
-    [Fact]
-    public void IsMember_whenIsEquipmentTag__ReturnsTrue()
+    [HappyPath]
+    public void Is_a_member_when_the_provided_tag_is_an_equipment_tag()
     {
         var isMember = EquipmentTag.IsMember(EquipmentTag.Head);
         
         Assert.True(isMember);
     }
     
-    [Fact]
-    public void IsMember_whenIsNotEquipmentTag__ReturnsFalse()
+    [UnhappyPath]
+    public void Is_a_not_a_member_when_the_provided_tag_is_not_an_equipment_tag()
     {
         var tagMock = new Mock<ITag>();
         
@@ -50,8 +51,27 @@ public class EquipmentTagTests
         Assert.False(isMember);
     }
 
-    [Fact]
-    public void GetMembers_when_NoMatchingTagsFound__ReturnsEmptyEnumerable()
+    
+    [HappyPath]
+    public void Getting_members_when_the_tag_list_contains_matching_tags_provides_those_matching_tags()
+    {
+        var tagList = new List<ITag> {EquipmentTag.Head, new Mock<ITag>().Object};
+        var expectedTagList = new List<ITag> {EquipmentTag.Head}; 
+        var tagListMock = new Mock<ITagList>();
+        tagListMock
+            .Setup(tl => tl.Tags)
+            .Returns(tagList);
+        tagListMock
+            .Setup(tl => tl.ContainsTag(EquipmentTag.Head))
+            .Returns(true);
+
+        var members = EquipmentTag.GetMembers(tagListMock.Object);
+        
+        Assert.Equivalent(expectedTagList, members);
+    }
+    
+    [UnhappyPath]
+    public void Getting_members_when_the_tag_list_does_not_contain_any_matching_tags_provides_an_empty_list()
     {
         var tagListMock = new Mock<ITagList>();
         tagListMock
@@ -63,28 +83,4 @@ public class EquipmentTagTests
         Assert.Empty(members);
     }
 
-    [Fact]
-    public void GetMembers_when_ItemsAreFound__ReturnsExpectedEnumerable()
-    {
-        var tagList = new List<ITag> {EquipmentTag.Head, EquipmentTag.Belt, new Mock<ITag>().Object};
-        var expectedTagList = new List<ITag> {EquipmentTag.Head, EquipmentTag.Belt }; 
-        var tagListMock = new Mock<ITagList>();
-        tagListMock
-            .Setup(tl => tl.Tags)
-            .Returns(tagList);
-        tagListMock
-            .Setup(tl => tl.ContainsTag(EquipmentTag.Belt))
-            .Returns(true);
-        tagListMock
-            .Setup(tl => tl.ContainsTag(It.IsAny<ITag>()))
-            .Returns(false);
-        tagListMock
-            .Setup(tl => tl.ContainsTag(EquipmentTag.Head))
-            .Returns(true);
-        
-
-        var members = EquipmentTag.GetMembers(tagListMock.Object);
-        
-        Assert.Equivalent(expectedTagList, members);
-    }
 }

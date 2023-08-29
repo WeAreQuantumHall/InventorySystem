@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using InventorySystem.Abstractions.Items;
 using InventorySystem.Abstractions.Tags;
 using InventorySystem.Factories;
+using InventorySystem.Tests.AttributeTags;
 using Moq;
 using Xunit;
 
@@ -12,8 +13,8 @@ public class ItemFactoryTests
 {
     private const string Name = "test-item-name";
     
-    [Fact]
-    public void CreateItem__ReturnsIItemCorrectlyPopulated()
+    [HappyPath]
+    public void Creating_a_new_item_provide_item_with_correctly_set_values()
     {
         var tagList = new List<ITag>
         {
@@ -36,8 +37,8 @@ public class ItemFactoryTests
             () => Assert.Equal(tagList, returnedItem.TagList.Tags));
     }
     
-    [Fact]
-    public void CreateStackableItem__ReturnsIItemCorrectlyPopulated()
+    [HappyPath, Stackable]
+    public void Creating_a_new_stackable_item_provide_item_with_correctly_set_values()
     {
         var tagList = new List<ITag>
         {

@@ -1,6 +1,5 @@
 ﻿using System;
 using InventorySystem.Abstractions.Items;
-
 using Moq;
 
 namespace InventorySystem.Tests.Data;
@@ -9,7 +8,7 @@ public static class MockItemData
 {
     private const string ItemName = "test-item-name";
 
-    public static Mock<IItem> GetItemMock(bool stackable, int stack, int maxStack)
+    public static Mock<IItem> GetItemMock(bool stackable, int stack = 0, int maxStack = 0)
     {
         var itemMock = new Mock<IItem>();
         itemMock.Setup(item => item.Id)

@@ -2,6 +2,7 @@
 using InventorySystem.Abstractions.Items;
 using InventorySystem.Abstractions.Tags;
 using InventorySystem.Items;
+using InventorySystem.Tests.AttributeTags;
 using Moq;
 using Xunit;
 
@@ -12,18 +13,8 @@ public class ItemTests
     
     private const string Name = "test-item-name";
 
-    [Fact]
-    public void Empty__ReturnsExpectedItem()
-    {
-        const string emptyItemString = "empty-item";
-
-        var emptyItem = Item.Empty;
-
-        Assert.Equal(emptyItemString, emptyItem.Name);
-    }
-
-    [Fact]
-    public void New__ReturnsCorrectlyPopulatedItem()
+    [Constructor]
+    public void Create_new_item_correctly_sets_values()
     {
         const bool stackable = false;
         const int stack = 1;
@@ -45,9 +36,26 @@ public class ItemTests
             () => Assert.Equal(maxStack, item.MaxStack),
             () => Assert.Equivalent(tagListMock.Object, item.TagList));
     }
+       
+    [HappyPath]
+    public void The_item_can_be_stacked_on_when_the_item_stack_is_not_at_capacity_and_the_item_is_stackable()
+    {
+        const bool stackable = true;
+        const int currentAmount = 1;
+        const int maxAmount = 10;
 
-    [Fact]
-    public void CanBeStackedOn_when_CurrentAmountEqualsMaxAmount__ReturnsFalse()
+        IItem item = new Item(Name)
+        {
+            Stackable = stackable,
+            Stack = currentAmount,
+            MaxStack = maxAmount
+        };
+
+        Assert.True(item.CanBeStackedOn);
+    }
+
+    [UnhappyPath]
+    public void The_item_cannot_be_stacked_on_when_the_item_stack_is_at_its_capacity()
     {
         const bool stackable = true;
         const int currentAmount = 10;
@@ -63,8 +71,8 @@ public class ItemTests
         Assert.False(item.CanBeStackedOn);
     }
     
-    [Fact]
-    public void CanBeStackedOn_when_NotStackable__ReturnsFalse()
+    [UnhappyPath]
+    public void The_item_cannot_be_stacked_on_when_the_item_is_not_stackable()
     {
         const bool stackable = false;
         const int currentAmount = 1;
@@ -80,82 +88,8 @@ public class ItemTests
         Assert.False(item.CanBeStackedOn);
     }
     
-    [Fact]
-    public void CanBeStackedOn_when_CurrentAmountIsLessThanMaxAmount_and_Stackable__ReturnsTrue()
-    {
-        const bool stackable = true;
-        const int currentAmount = 1;
-        const int maxAmount = 10;
-
-        IItem item = new Item(Name)
-        {
-            Stackable = stackable,
-            Stack = currentAmount,
-            MaxStack = maxAmount
-        };
-
-        Assert.True(item.CanBeStackedOn);
-    }
-    
-    [Fact]
-    public void SplitStack_when_NotStackable__ReturnsOriginalItemNotSplit()
-    {
-        const int stackSize = 2;
-
-        IItem item = new Item(Name)
-        {
-            Stackable = false,
-            Stack = stackSize,
-            MaxStack = 20
-        };
-        
-        var splitItem = item.SplitStack(1);
-
-        Assert.Multiple(
-            () => Assert.Equal(item, splitItem),
-            () => Assert.Equal(stackSize, item.Stack));
-    }
-    
-    [Fact]
-    public void SplitStack_when_Stackable_and_StackSize1__ReturnsItemToSplitNotSplit()
-    {
-        const int stackSize = 1;
-
-        IItem item = new Item(Name)
-        {
-            Stackable = false,
-            Stack = stackSize,
-            MaxStack = 20
-        };
-        
-        var splitItem = item.SplitStack(1);
-
-        Assert.Multiple(
-            () => Assert.Equal(item, splitItem),
-            () => Assert.Equal(stackSize, item.Stack));
-    }
-    
-    [Fact]
-    public void SplitStack_when_SplitAmountGreaterThanStack__ReturnsItemToSplitNotSplit()
-    {
-        const int stackSize = 1;
-
-        IItem item = new Item(Name)
-        {
-            Stackable = false,
-            Stack = stackSize,
-            MaxStack = 20
-        };
-        
-        var splitItem = item.SplitStack(2);
-
-        Assert.Multiple(
-            () => Assert.Equal(item, splitItem),
-            () => Assert.Equal(stackSize, item.Stack));
-    }
-
-    [Fact]
-    public void SplitStack_whenCanBeSplit__ReturnsSplitItem_with_StackEqualSplitAmount_and_ItemToSplitWithExpectedStack()
+    [HappyPath]
+    public void Trying_to_split_the_item_stack_when_it_can_be_split_provides_a_new_split_item_and_both_items_stack_will_be_set_correctly()
     {
         const int expectedItemToSplitStack = 10;
         const int expectedSplitItemStack = 15;
@@ -177,9 +111,66 @@ public class ItemTests
             () => Assert.Equal(expectedItemToSplitStack, itemToSplit.Stack),
             () => Assert.Equal(expectedSplitItemStack, splitItem.Stack));
     }
+    
+    [UnhappyPath]
+    public void Trying_to_split_the_item_stack_when_the_item_is_not_stackable_provides_the_original_item()
+    {
+        const int stackSize = 2;
 
-    [Fact]
-    public void AddToStack_when_AbleToAddWholeAmount__Returns0_and_SetsExpectedStack()
+        IItem item = new Item(Name)
+        {
+            Stackable = false,
+            Stack = stackSize,
+            MaxStack = 20
+        };
+        
+        var splitItem = item.SplitStack(1);
+
+        Assert.Multiple(
+            () => Assert.Equal(item, splitItem),
+            () => Assert.Equal(stackSize, item.Stack));
+    }
+    
+    [UnhappyPath]
+    public void Trying_to_split_the_item_stack_when_the_item_stack_is_one_provides_the_original_item()
+    {
+        const int stackSize = 1;
+
+        IItem item = new Item(Name)
+        {
+            Stackable = false,
+            Stack = stackSize,
+            MaxStack = 20
+        };
+        
+        var splitItem = item.SplitStack(1);
+
+        Assert.Multiple(
+            () => Assert.Equal(item, splitItem),
+            () => Assert.Equal(stackSize, item.Stack));
+    }
+    
+    [UnhappyPath]
+    public void Trying_to_split_the_item_stack_when_the_amount_to_split_is_greater_than_the_stack_size_provides_the_original_item()
+    {
+        const int stackSize = 1;
+
+        IItem item = new Item(Name)
+        {
+            Stackable = false,
+            Stack = stackSize,
+            MaxStack = 20
+        };
+        
+        var splitItem = item.SplitStack(2);
+
+        Assert.Multiple(
+            () => Assert.Equal(item, splitItem),
+            () => Assert.Equal(stackSize, item.Stack));
+    }
+
+    [HappyPath]
+    public void Adding_to_the_stack_when_the_whole_amount_can_be_added_will_provide_zero_remaining_stack_and_set_the_stack_on_the_item()
     {
         const int expectedRemainingAmount = 0;
         const int expectedStack = 6;
@@ -198,8 +189,8 @@ public class ItemTests
             () => Assert.Equal(expectedStack, item.Stack));
     }
     
-    [Fact]
-    public void AddToStack_when_NotAbleToAddWholeAmount__ReturnsExpectedRemainingAmount_and_SetsExpectedStack()
+    [UnhappyPath]
+    public void Adding_to_the_stack_when_unable_to_add_full_amount_will_provide_remaining_stack_and_set_item_stack_to_capacity()
     {
         const int expectedRemainingAmount = 8;
         const int expectedStack = 10;
@@ -218,8 +209,48 @@ public class ItemTests
             () => Assert.Equal(expectedStack, item.Stack));
     }
 
-    [Fact]
-    public void AddTag_when_CanAddTag__ReturnsTrue()
+    [HappyPath]
+    public void Setting_the_stack_when_the_amount_is_less_than_capacity_will_provide_remaining_stack_of_zero_and_set_the_stack()
+    {
+        const int expectedRemainingAmount = 0;
+        const int expectedStack = 9;
+        
+        IItem item = new Item(Name)
+        {
+            Stackable = true,
+            Stack = 5,
+            MaxStack = 10
+        };
+
+        var remainingAmount = item.SetStack(9);
+        
+        Assert.Multiple(
+            () => Assert.Equal(expectedRemainingAmount, remainingAmount),
+            () => Assert.Equal(expectedStack, item.Stack));
+    }
+
+    [HappyPath]
+    public void Setting_the_stack_when_the_amount_is_more_than_capacity_will_provide_remaining_stack_and_set_the_stack()
+    {
+        const int expectedRemainingAmount = 5;
+        const int expectedStack = 10;
+        
+        IItem item = new Item(Name)
+        {
+            Stackable = true,
+            Stack = 5,
+            MaxStack = 10
+        };
+
+        var remainingAmount = item.SetStack(15);
+        
+        Assert.Multiple(
+            () => Assert.Equal(expectedRemainingAmount, remainingAmount),
+            () => Assert.Equal(expectedStack, item.Stack));
+    }
+    
+    [HappyPath]
+    public void Item_does_add_the_tag_to_the_tag_list_when_the_tag_can_be_added()
     {
         var tagListMock = new Mock<ITagList>();
         tagListMock
@@ -232,8 +263,8 @@ public class ItemTests
         Assert.True(hasBeenAdded);
     }
     
-    [Fact]
-    public void AddTag_when_CannotAddTag__ReturnsFalse()
+    [UnhappyPath]
+    public void Item_does_not_add_the_tag_to_the_tag_list_when_the_tag_cannot_be_added()
     {
         var tagListMock = new Mock<ITagList>();
         tagListMock
@@ -246,8 +277,8 @@ public class ItemTests
         Assert.False(hasBeenAdded);
     }
     
-    [Fact]
-    public void RemoveTag_when_CanRemoveTag__ReturnsTrue()
+    [HappyPath]
+    public void Item_does_remove_the_tag_from_the_tag_list_when_the_tag_can_be_removed()
     {
         var tagListMock = new Mock<ITagList>();
         tagListMock
@@ -260,8 +291,8 @@ public class ItemTests
         Assert.True(hasBeenRemoved);
     }
     
-    [Fact]
-    public void RemoveTag_when_CannotRemoveTag__ReturnsFalse()
+    [UnhappyPath]
+    public void Item_does_not_remove_the_tag_from_the_tag_list_when_the_tag_cannot_be_removed()
     {
         var tagListMock = new Mock<ITagList>();
         tagListMock
@@ -274,8 +305,8 @@ public class ItemTests
         Assert.False(hasBeenRemoved);
     }
 
-    [Fact]
-    public void ContainsTag_when_TagListContainsTag__ReturnsTrue()
+    [HappyPath]
+    public void Item_does_contain_the_tag_when_the_tag_list_contains_the_tag()
     {
         var tagListMock = new Mock<ITagList>();
         tagListMock
@@ -288,8 +319,8 @@ public class ItemTests
         Assert.True(hasBeenRemoved);
     }
     
-    [Fact]
-    public void ContainsTag_when_TagListDoesNotContainsTag__ReturnsFalse()
+    [UnhappyPath]
+    public void Item_does_not_contain_the_tag_when_the_tag_list_does_not_contain_the_tag()
     {
         var tagListMock = new Mock<ITagList>();
         tagListMock

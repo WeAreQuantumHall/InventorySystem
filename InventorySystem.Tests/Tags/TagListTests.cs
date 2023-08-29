@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using InventorySystem.Abstractions.Tags;
 using InventorySystem.Tags;
+using InventorySystem.Tests.AttributeTags;
 using Moq;
 using Xunit;
 
@@ -8,16 +9,18 @@ namespace InventorySystem.Tests.Tags;
 
 public class TagListTests
 {
-    [Fact]
-    public void New__CreatedNewTagListWithEmptyList()
+    [Constructor]
+    public void Creating_a_new_tag_list_without_providing_tags_provides_an_empty_tag_list()
+        
     {
         ITagList tagList = new TagList();
         
         Assert.Empty(tagList.Tags);
     }
     
-    [Fact]
-    public void New_when_TagList__CreatesNewTagListWithProvidedTags()
+    [Constructor]
+    public void Creating_a_new_tag_list_when_providing_a_list_of_tags_provides_a_tag_list_containing_those_tags()
+
     {
         var expectedTags = new[] {new Mock<ITag>().Object, new Mock<ITag>().Object};
 
@@ -26,8 +29,8 @@ public class TagListTests
         Assert.Equal(expectedTags, tagList.Tags);
     }
     
-    [Fact]
-    public void IsMember_when_TagIsFound__ReturnsTrue()
+    [HappyPath]
+    public void Is_a_member_when_the_provided_tag_is_found_in_the_tag_list()
     {
         var tagToFind = new Mock<ITag>();
         var expectedTags = new[] {tagToFind.Object, new Mock<ITag>().Object};
@@ -38,8 +41,8 @@ public class TagListTests
         Assert.True(isMember);
     }
     
-    [Fact]
-    public void IsMember_when_TagIsNotFound__ReturnsFalse()
+    [UnhappyPath]
+    public void Is_not_a_member_when_the_provided_tag_is_not_found_in_the_tag_list()
     {
         var expectedTags = new[] {new Mock<ITag>().Object, new Mock<ITag>().Object};
 
@@ -49,8 +52,8 @@ public class TagListTests
         Assert.False(isMember);
     }
 
-    [Fact]
-    public void AddTag_when_TagDoesNotExist_ReturnsTrueAndAddsTag()
+    [HappyPath]
+    public void Can_add_tag_when_the_provided_tag_is_not_already_present_in_the_tag_list_and_will_add_the_tag()
     {
         var existingTagMock = new Mock<ITag>();
         var tagToAddMock = new Mock<ITag>();
@@ -65,8 +68,8 @@ public class TagListTests
             () => Assert.Equal(expectedTags, tagList.Tags));
     }
 
-    [Fact]
-    public void AddTag_when_TagAlreadyExists_ReturnsFalseAndDoesNotAddTag()
+    [UnhappyPath]
+    public void Can_not_add_tag_when_the_provided_tag_is_already_present_in_the_tag_list_and_will_not_add_the_tag()
     {
         var tagToAddMock = new Mock<ITag>();
         var existingTags = new [] { tagToAddMock.Object };
@@ -79,8 +82,8 @@ public class TagListTests
             () => Assert.Equal(existingTags, tagList.Tags));
     }
 
-    [Fact]
-    public void RemoveTag_when_TagExists__ReturnsTrueAndRemovesTag()
+    [HappyPath]
+    public void Can_remove_tag_when_the_provided_tag_is_already_present_in_the_tag_list_and_will_remove_add_the_tag()
     {
         var existingTagMock = new Mock<ITag>();
         var existingTags = new [] {existingTagMock.Object};
@@ -93,8 +96,8 @@ public class TagListTests
             () => Assert.Empty(tagList.Tags));
     }
     
-    [Fact]
-    public void RemoveTag_when_TagDoesNotExist__ReturnsFalse()
+    [HappyPath]
+    public void Cannot_remove_tag_when_the_provided_tag_is_already_present_in_the_tag_list_and_will_remove_add_the_tag()
     {
         var existingTags = new List<ITag> {new Mock<ITag>().Object};
         

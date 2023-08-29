@@ -2,14 +2,15 @@
 
 using InventorySystem.Abstractions.Tags;
 using InventorySystem.Tags;
+using InventorySystem.Tests.AttributeTags;
 using Xunit;
 
 namespace InventorySystem.Tests.Tags;
 
 public class TagTests
 {
-    [Fact]
-    public void New__ReturnsExpectedTag()
+    [Constructor]
+    public void Creating_a_new_tag_provides_a_new_tag_with_the_correct_values_set()
     {
         const string expectedTagName = "tag-name";
         var expectedIdentifier = Guid.NewGuid();
@@ -22,7 +23,7 @@ public class TagTests
     }
 
     [Fact]
-    public void ToString__ReturnsTagName()
+    public void The_string_value_of_the_tag_will_be_the_tag_name()
     {
         const string expectedTagName = "tag-name";
 
