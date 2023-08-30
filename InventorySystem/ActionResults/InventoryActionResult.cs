@@ -6,33 +6,16 @@ using InventorySystem.Abstractions.Items;
 
 namespace InventorySystem.ActionResults
 {
-    /// <inheritdoc />
-    public class InventoryActionResult : IInventoryActionResult
+    internal class InventoryActionResult : IInventoryActionResult
     {
-        /// <inheritdoc />
-        public InventoryAction Result { get; }
-
-        /// <inheritdoc />
-        public IItem? Item { get; }
-
-        /// <inheritdoc />
-        public IEnumerable<IItem> Items { get; } = Enumerable.Empty<IItem>();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InventoryActionResult"/> class.
-        /// </summary>
-        /// <param name="result">The result of the inventory action.</param>
-        /// <param name="item">The associated item with the inventory action result (optional).</param>
         public InventoryActionResult(InventoryAction result, IItem? item = null)
-        {
-            Result = result;
-            Item = item;
-        }
+            => (Result, Item) = (result, item);
 
         public InventoryActionResult(InventoryAction result, IEnumerable<IItem> items)
-        {
-            Result = result;
-            Items = items;
-        }
+            => (Result, Items) = (result, items);
+        
+        public InventoryAction Result { get; }
+        public IItem? Item { get; }
+        public IEnumerable<IItem> Items { get; } = Enumerable.Empty<IItem>();
     }
 }

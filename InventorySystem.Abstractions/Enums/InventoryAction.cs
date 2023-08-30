@@ -1,4 +1,6 @@
-﻿namespace InventorySystem.Abstractions.Enums
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace InventorySystem.Abstractions.Enums
 {
     /// <summary>
     /// Represents the possible actions that can occur during inventory operations.
@@ -8,6 +10,7 @@
         /// <summary>
         /// Default value for the enum, should not be used.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         None,
         
         /// <summary>
@@ -80,14 +83,29 @@
         /// </summary>
         ItemsNotFound,
         
+        /// <summary>
+        /// There were no matching equipment slots on the item
+        /// </summary>
         NoMatchingEquipmentSlots,
         
+        /// <summary>
+        /// The inventory does not allow items with an ItemStack
+        /// </summary>
         StackableItemsNotAllowed,
         
+        /// <summary>
+        /// The source inventory id provided does not match to an inventory
+        /// </summary>
         SourceInventoryNotFound,
         
+        /// <summary>
+        /// The target inventory id provided does not match to an inventory
+        /// </summary>
         TargetInventoryNotFound,
         
+        /// <summary>
+        /// The item has successfully been moved from the source inventory to the target inventory
+        /// </summary>
         ItemMovedBetweenInventories
         
     }

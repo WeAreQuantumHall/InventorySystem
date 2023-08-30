@@ -15,7 +15,7 @@ namespace InventorySystem.Services.Inventory
             IItem item,
             bool isAtCapacity)
         {
-            if (item.Stackable) return (StackableItemsNotAllowed, item);
+            if (item.ItemStack != null) return (StackableItemsNotAllowed, item);
                 
             var equipmentTagsFromItem = EquipmentTag
                 .GetMembers(item.TagList)

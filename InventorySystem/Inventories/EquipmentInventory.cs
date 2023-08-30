@@ -9,8 +9,6 @@ namespace InventorySystem.Inventories
 {
     internal class EquipmentInventory : AbstractInventory
     {
-        public override bool IsAtCapacity => false;
-
         internal EquipmentInventory(IInventoryService inventoryService, string name, IEnumerable<ITag> tags) 
             : base(inventoryService, name, 0)
             => Items = tags
@@ -21,5 +19,7 @@ namespace InventorySystem.Inventories
             : base(inventoryService, name, 0)
             => Items = EquipmentTag.Tags
                 .ToDictionary(tag => tag.Identifier, _ => IItem.Empty);
+        
+        public override bool IsAtCapacity => false;
     }
 }
