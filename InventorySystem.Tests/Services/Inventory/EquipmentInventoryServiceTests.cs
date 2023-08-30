@@ -19,18 +19,17 @@ public class EquipmentInventoryServiceTests
     private readonly IDictionary<Guid, IItem> _itemsStub = EquipmentTag.Tags
         .ToDictionary(tag => tag.Identifier, _ => IItem.Empty);
 
+    private readonly Mock<ITagList> _tagListMock = new Mock<ITagList>();
+    private readonly Mock<IItemStack> _itemStackMock = new Mock<IItemStack>();
+
     [HappyPath]
     public void Trying_to_add_an_item_with_empty_matching_slot_will_add_the_item_and_not_provide_an_item()
     {
         const bool isAtCapacity = false;
-        var tagListMock = new Mock<ITagList>();
-        tagListMock
+        _tagListMock
             .Setup(tagList => tagList.Tags)
             .Returns(new [] {EquipmentTag.Head});
-        var itemToAddMock = MockItemData.GetItemMock(false);
-        itemToAddMock
-            .Setup(item => item.TagList)
-            .Returns(tagListMock.Object);
+        var itemToAddMock = MockItemData.GetItemMock(_tagListMock);
         var expectedAddItemAction = (ItemAdded, (IItem?) null);
 
         IInventoryService inventoryService = new EquipmentInventoryService();
@@ -46,17 +45,12 @@ public class EquipmentInventoryServiceTests
     {
         const bool isAtCapacity = false;
         var identifier = EquipmentTag.Head.Identifier;
-        var itemInSlotMock = MockItemData.GetItemMock(false);
+        var itemInSlotMock = MockItemData.GetItemMock(_tagListMock);
         _itemsStub[identifier] = itemInSlotMock.Object;
-        
-        var tagListMock = new Mock<ITagList>();
-        tagListMock
+        _tagListMock
             .Setup(tagList => tagList.Tags)
             .Returns(new [] {EquipmentTag.Head});
-        var itemToAddMock = MockItemData.GetItemMock(false);
-        itemToAddMock
-            .Setup(item => item.TagList)
-            .Returns(tagListMock.Object);
+        var itemToAddMock = MockItemData.GetItemMock(_tagListMock);
         
         var expectedAddItemAction = (ItemSwapped, itemInSlotMock.Object);
     
@@ -72,7 +66,7 @@ public class EquipmentInventoryServiceTests
     public void Trying_to_add_a_stackable_item_will_not_add_the_item_and_will_provide_the_item()
     {
         const bool isAtCapacity = false;
-        var itemToAddMock = MockItemData.GetItemMock(true, 1, 10);
+        var itemToAddMock = MockItemData.GetItemMock(_tagListMock, _itemStackMock);
         var expectedAddItemAction = (StackableItemsNotAllowed, itemToAddMock.Object);
 
         IInventoryService inventoryService = new EquipmentInventoryService();
@@ -87,14 +81,10 @@ public class EquipmentInventoryServiceTests
     public void Trying_to_add_an_item_without_equipment_tags_will_not_add_the_item_and_will_provide_the_item()
     {
         const bool isAtCapacity = false;
-        var tagListMock = new Mock<ITagList>();
-        tagListMock
+        _tagListMock
             .Setup(tagList => tagList.Tags)
             .Returns(Array.Empty<ITag>());
-        var itemToAddMock = MockItemData.GetItemMock(false);
-        itemToAddMock
-            .Setup(item => item.TagList)
-            .Returns(tagListMock.Object);
+        var itemToAddMock = MockItemData.GetItemMock(_tagListMock);
         
         var expectedAddItemAction = (ItemEquipmentTagMissing, itemToAddMock.Object);
     
@@ -111,16 +101,11 @@ public class EquipmentInventoryServiceTests
     {
         const bool isAtCapacity = false;
         _itemsStub.Remove(EquipmentTag.Head.Identifier);
-        
-        var tagListMock = new Mock<ITagList>();
-        tagListMock
+        _tagListMock
             .Setup(tagList => tagList.Tags)
             .Returns(new [] {EquipmentTag.Head});
-        var itemToAddMock = MockItemData.GetItemMock(false);
-        itemToAddMock
-            .Setup(item => item.TagList)
-            .Returns(tagListMock.Object);
-         
+        var itemToAddMock = MockItemData.GetItemMock(_tagListMock);
+
         var expectedAddItemAction = (NoMatchingEquipmentSlots, itemToAddMock.Object);
     
         IInventoryService inventoryService = new EquipmentInventoryService();
@@ -135,7 +120,7 @@ public class EquipmentInventoryServiceTests
     public void Trying_to_get_an_item_when_the_slot_and_item_are_present_will_provide_the_item()
     {
         var identifier = EquipmentTag.Head.Identifier;
-        var itemInSlotMock = MockItemData.GetItemMock(false);
+        var itemInSlotMock = MockItemData.GetItemMock();
         _itemsStub[identifier] = itemInSlotMock.Object;
         var expectedGetItemAction = (ItemRetrieved, itemInSlotMock.Object);
         
@@ -172,8 +157,8 @@ public class EquipmentInventoryServiceTests
     [HappyPath]
     public void Trying_to_get_all_items_when_items_are_present_will_return_those_items()
     {
-        var firstItemToGetMock = MockItemData.GetItemMock(false);
-        var secondItemToGetMock = MockItemData.GetItemMock(false);
+        var firstItemToGetMock = MockItemData.GetItemMock();
+        var secondItemToGetMock = MockItemData.GetItemMock();
         _itemsStub[EquipmentTag.Head.Identifier] = firstItemToGetMock.Object;
         _itemsStub[EquipmentTag.Chest.Identifier] = secondItemToGetMock.Object;
         var expectedList = new List<IItem> {firstItemToGetMock.Object, secondItemToGetMock.Object};
@@ -213,7 +198,7 @@ public class EquipmentInventoryServiceTests
     [HappyPath]
     public void Trying_to_remove_an_item_when_the_slot_is_present_and_contains_an_item_will_remove_and_provide_that_item()
     {
-        var itemToRemove = MockItemData.GetItemMock(false);
+        var itemToRemove = MockItemData.GetItemMock();
         _itemsStub[EquipmentTag.Head.Identifier] = itemToRemove.Object;
         var expectedRemoveItemAction = (ItemRemoved, itemToRemove.Object);
         

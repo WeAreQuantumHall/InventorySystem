@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using InventorySystem.Abstractions;
+using InventorySystem.Abstractions.Enums;
 using InventorySystem.Abstractions.Items;
 using InventorySystem.Abstractions.Tags;
 using InventorySystem.Services.Inventory;
@@ -16,12 +17,13 @@ namespace InventorySystem.Tests.Services.Inventory;
 public class InventoryServiceTests
 {
     private readonly IDictionary<Guid, IItem> _itemsStub = new Dictionary<Guid, IItem>();
+    private readonly Mock<IItemStack> _itemStackMock = new Mock<IItemStack>();
 
     [HappyPath]
     public void Trying_to_add_an_item_which_has_not_already_been_added_will_add_the_item()
     {
         const bool isAtCapacity = false;
-        var itemToAddMock = MockItemData.GetItemMock(false, 1, 1);
+        var itemToAddMock = MockItemData.GetItemMock();
         var expectedAddItemAction = (ItemAdded, (IItem?) null);
 
         IInventoryService inventoryService = new InventoryService();
@@ -37,7 +39,7 @@ public class InventoryServiceTests
     public void Trying_to_add_an_item_when_inventory_is_full_will_not_add_the_item()
     {
         const bool isAtCapacity = true;
-        var itemToAddMock = MockItemData.GetItemMock(false, 1, 1);
+        var itemToAddMock = MockItemData.GetItemMock();
         var expectedAddItemAction = (InventoryAtCapacity, itemToAddMock.Object);
 
         IInventoryService inventoryService = new InventoryService();
@@ -51,7 +53,7 @@ public class InventoryServiceTests
     [UnhappyPath]
     public void Trying_to_add_an_item_when_item_has_already_been_added_will_not_add_the_item()
     {
-        var itemToAddMock = MockItemData.GetItemMock(false, 1, 1);
+        var itemToAddMock = MockItemData.GetItemMock();
         _itemsStub.Add(itemToAddMock.Object.Id, itemToAddMock.Object);
         var expectedAddItemAction = (ItemAlreadyExists, (IItem?) null);
 
@@ -66,7 +68,7 @@ public class InventoryServiceTests
     [HappyPath]
     public void Trying_to_get_an_item_if_the_item_is_in_the_inventory_will_provide_item()
     {
-        var existingItemMock = MockItemData.GetItemMock(false, 1, 1);
+        var existingItemMock = MockItemData.GetItemMock();
         _itemsStub.Add(existingItemMock.Object.Id, existingItemMock.Object);
         var expectedGetItemAction = (ItemRetrieved, existingItemMock.Object);
         
@@ -90,8 +92,8 @@ public class InventoryServiceTests
     [HappyPath]
     public void Trying_to_get_all_items_if_the_inventory_contains_items_will_provide_items()
     {
-        var firstItemMock = MockItemData.GetItemMock(false);
-        var secondItemMock = MockItemData.GetItemMock(false);
+        var firstItemMock = MockItemData.GetItemMock();
+        var secondItemMock = MockItemData.GetItemMock();
         var itemsList = new List<IItem> {firstItemMock.Object, secondItemMock.Object};
         _itemsStub.Add(firstItemMock.Object.Id, firstItemMock.Object);
         _itemsStub.Add(secondItemMock.Object.Id, secondItemMock.Object);
@@ -157,7 +159,7 @@ public class InventoryServiceTests
     [HappyPath]
     public void Trying_to_remove_an_item_when_the_inventory_contains_the_item_will_remove_and_provide_that_item()
     {
-        var mockItemToRemove = MockItemData.GetItemMock(false);
+        var mockItemToRemove = MockItemData.GetItemMock();
         _itemsStub.Add(mockItemToRemove.Object.Id, mockItemToRemove.Object);
         
         IInventoryService inventoryService = new InventoryService();
@@ -183,23 +185,31 @@ public class InventoryServiceTests
     }
     
     [HappyPath]
-    public void Trying_to_split_an_item_stack_when_it_can_be_split_will_provide_a_new_item()
+    public void Trying_to_split_an_item_stack_when_item_stack_can_be_split_returns_the_split_item()
     {
-        const int splitAmount = 5;
-        var itemToSplitMock = MockItemData.GetItemMock(true, 10, 10);
-        var itemFromSplittingMock = MockItemData.GetItemMock(true, 5, 10);
-        _itemsStub.Add(itemToSplitMock.Object.Id, itemToSplitMock.Object);
+        const int splitAmount = 10;
+        const InventoryAction expectedSplitItemActionResult = ItemStackSplit;
+        var expectedSplitItemStack = new Mock<IItemStack>();
+        var expectedSplitItemMock = MockItemData.GetItemMock(itemStack: expectedSplitItemStack);
+        var itemToSplitMock = MockItemData.GetItemMock(itemStack: _itemStackMock);
         itemToSplitMock
-            .Setup(item => item.SplitStack(splitAmount))
-            .Returns(itemFromSplittingMock.Object);
-        var expectedRemoveItemAction = (ItemStackSplit, itemFromSplittingMock.Object);
-    
+            .Setup(item => item.Copy())
+            .Returns(expectedSplitItemMock.Object);
+        _itemStackMock
+            .Setup(itemStack => itemStack.TrySplitStack(splitAmount))
+            .Returns(true);
+        _itemsStub
+            .Add(itemToSplitMock.Object.Id, itemToSplitMock.Object);
+
         IInventoryService inventoryService = new InventoryService();
-        var removeItemAction = inventoryService.TrySplitItemStack(_itemsStub, itemToSplitMock.Object.Id, splitAmount);
-    
+        var splitItemAction = inventoryService.TrySplitItemStack(_itemsStub, itemToSplitMock.Object.Id, splitAmount);
+
         Assert.Multiple(
-            () => itemToSplitMock.Verify(item => item.SplitStack(splitAmount), Times.Once),
-            () => Assert.Equivalent(expectedRemoveItemAction, removeItemAction));
+            () => _itemStackMock.Verify(itemStack => itemStack.TrySplitStack(splitAmount), Times.Once),
+            () => Assert.NotNull(splitItemAction.Item),
+            () => itemToSplitMock.Verify(item => item.Copy(), Times.Once),
+            () => expectedSplitItemStack.Verify(itemStack => itemStack.SetStack(splitAmount), Times.Once),
+            () => Assert.Equal(expectedSplitItemActionResult, splitItemAction.Action));
     }
     
     [UnhappyPath]
@@ -214,20 +224,35 @@ public class InventoryServiceTests
     }
     
     [UnhappyPath]
-    public void Trying_to_split_an_item_stack_when_item_stack_cannot_be_split_will_not_provide_an_item()
+    public void Trying_to_split_an_item_stack_when_item_stack_is_not_present_will_not_provide_an_item()
     {
-        var itemToSplitMock = MockItemData.GetItemMock(true, 1, 1);
-        itemToSplitMock
-            .Setup(item => item.SplitStack(It.IsAny<int>()))
-            .Returns(itemToSplitMock.Object);
+        var itemToSplitMock = MockItemData.GetItemMock();
         _itemsStub.Add(itemToSplitMock.Object.Id, itemToSplitMock.Object);
-        var expectedRemoveItemAction = (ItemStackNotSplit, (IItem?) null);
+        var expectedSplitItemAction = (ItemStackNotSplit, (IItem?) null);
         
         IInventoryService inventoryService = new InventoryService();
-        var removeItemAction = inventoryService.TrySplitItemStack(_itemsStub, itemToSplitMock.Object.Id, It.IsAny<int>());
+        var splitItemAction = inventoryService.TrySplitItemStack(_itemsStub, itemToSplitMock.Object.Id, It.IsAny<int>());
     
         Assert.Multiple(
-            () => itemToSplitMock.Verify(item => item.SplitStack(It.IsAny<int>()), Times.Once),
-            () => Assert.Equivalent(expectedRemoveItemAction, removeItemAction));
+            () => itemToSplitMock.Verify(item => item.Copy(), Times.Never),
+            () => Assert.Equivalent(expectedSplitItemAction, splitItemAction));
+    }
+    
+    [UnhappyPath]
+    public void Trying_to_split_an_item_stack_when_item_stack_cannot_be_split_will_not_provide_an_item()
+    {
+        var itemToSplitMock = MockItemData.GetItemMock(itemStack: _itemStackMock);
+        _itemStackMock.Setup(itemStack => itemStack.TrySplitStack(It.IsAny<int>()))
+            .Returns(false);
+        _itemsStub.Add(itemToSplitMock.Object.Id, itemToSplitMock.Object);
+        var expectedSplitItemAction = (ItemStackNotSplit, (IItem?) null);
+        
+        IInventoryService inventoryService = new InventoryService();
+        var splitItemAction = inventoryService.TrySplitItemStack(_itemsStub, itemToSplitMock.Object.Id, It.IsAny<int>());
+    
+        Assert.Multiple(
+            () => _itemStackMock.Verify(itemStack => itemStack.TrySplitStack(It.IsAny<int>()), Times.Once),
+            () => itemToSplitMock.Verify(item => item.Copy(), Times.Never),
+            () => Assert.Equivalent(expectedSplitItemAction, splitItemAction));
     }
 }

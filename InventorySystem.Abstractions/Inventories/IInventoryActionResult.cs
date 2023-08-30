@@ -5,7 +5,7 @@ using InventorySystem.Abstractions.Items;
 namespace InventorySystem.Abstractions.Inventories
 {
     /// <summary>
-    /// Represents the result of an inventory action, along with an optional associated item.
+    /// Represents the result of an inventory action, along with an optional associated item(s).
     /// </summary>
     public interface IInventoryActionResult
     {

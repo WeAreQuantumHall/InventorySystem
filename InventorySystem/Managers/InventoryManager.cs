@@ -12,6 +12,9 @@ namespace InventorySystem.Managers
     {
         private readonly Dictionary<Guid, IInventory> _inventories = new Dictionary<Guid, IInventory>();
 
+        public bool TryGetInventory(Guid id, out IInventory inventory)
+            => _inventories.TryGetValue(id, out inventory);
+        
         public Guid CreateInventory(IInventoryService inventoryService, string name, int capacity)
         {
             var inventory = new ContainerInventory(inventoryService, name);
@@ -19,10 +22,7 @@ namespace InventorySystem.Managers
             return inventory.Id;
         }
 
-        public bool TryGetInventory(Guid id, out IInventory inventory)
-            => _inventories.TryGetValue(id, out inventory);
-        
-        public IInventoryActionResult MoveItemBetweenInventories(Guid sourceInventoryId, Guid targetInventoryId, Guid itemToMoveId)
+       public IInventoryActionResult MoveItemBetweenInventories(Guid sourceInventoryId, Guid targetInventoryId, Guid itemToMoveId)
         {
             if (!TryGetInventory(sourceInventoryId, out var sourceInventory))
                 return new InventoryActionResult(SourceInventoryNotFound);

@@ -7,6 +7,14 @@ namespace InventorySystem.Tags
 {
     public static class EquipmentTag
     {
+        static EquipmentTag()
+        {
+            TagList = new TagList( new [] 
+            {
+                Head, Chest, Shoulders, Hands, Belt, Legs, Feet, Offhand, MainHand, Neck, LeftEar, RightEar
+            });
+        }
+        
         private static readonly ITagList TagList;
 
         public static readonly ITag Head = new Tag(nameof(Head), GenerateGuid(1));
@@ -22,22 +30,13 @@ namespace InventorySystem.Tags
         public static readonly ITag LeftEar = new Tag(nameof(LeftEar), GenerateGuid(11));
         public static readonly ITag RightEar = new Tag(nameof(RightEar), GenerateGuid(12));
 
-        static EquipmentTag()
-        {
-            TagList = new TagList( new [] 
-            {
-                Head, Chest, Shoulders, Hands, Belt, Legs, Feet, Offhand, MainHand, Neck, LeftEar, RightEar
-            });
-        }
+        public static IReadOnlyList<ITag> Tags => TagList.Tags; 
         
         public static bool IsMember(ITag tag) => TagList.ContainsTag(tag);
         public static IEnumerable<ITag> GetMembers(ITagList tagList) => tagList.Tags.Where(IsMember);
-
-        public static IReadOnlyList<ITag> Tags => TagList.Tags; 
         
         private static Guid GenerateGuid(int id)
         {
-            
             var stringSuffix = id.ToString();
             var stringBody = new string('0', 12 - stringSuffix.Length);
 

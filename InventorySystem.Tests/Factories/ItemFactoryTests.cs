@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using InventorySystem.Abstractions.Items;
 using InventorySystem.Abstractions.Tags;
 using InventorySystem.Factories;
@@ -14,55 +13,31 @@ public class ItemFactoryTests
     private const string Name = "test-item-name";
     
     [HappyPath]
-    public void Creating_a_new_item_provide_item_with_correctly_set_values()
+    public void Creating_a_new_item_will_provide_item_with_correctly_set_values()
     {
-        var tagList = new List<ITag>
-        {
-            new Mock<ITag>().Object, new Mock<ITag>().Object
-        };
+        var tagList = new Mock<ITagList>();
+        tagList
+            .Setup(tl => tl.Tags)
+            .Returns(new[] {new Mock<ITag>().Object});
+        var itemStackMock = new Mock<IItemStack>();
+        itemStackMock
+            .Setup(itemStack => itemStack.Current)
+            .Returns(10);
+        itemStackMock
+            .Setup(itemStack => itemStack.Max)
+            .Returns(10);
         
-        const bool stackable = false;
-        const int currentAmount = 0;
-        const int maxAmount = 0;
-
-        var returnedItem = ItemFactory.CreateItem(Name, tagList);
-
-        Assert.Multiple(
-            () => Assert.IsAssignableFrom<IItem>(returnedItem),
-            () => Assert.NotEqual(Guid.Empty, returnedItem.Id),
-            () => Assert.Equal(Name, returnedItem.Name),
-            () => Assert.Equal(stackable, returnedItem.Stackable),
-            () => Assert.Equal(currentAmount, returnedItem.Stack),
-            () => Assert.Equal(maxAmount, returnedItem.MaxStack),
-            () => Assert.Equal(tagList, returnedItem.TagList.Tags));
-    }
-    
-    [HappyPath, Stackable]
-    public void Creating_a_new_stackable_item_provide_item_with_correctly_set_values()
-    {
-        var tagList = new List<ITag>
-        {
-            new Mock<ITag>().Object, new Mock<ITag>().Object
-        };
-        
-        const bool stackable = true;
-        const int currentAmount = 1;
-        const int maxAmount = 99;
-
-        var returnedItem = ItemFactory.CreateStackableItem(
+        var returnedItem = ItemFactory.CreateItem(
             Name, 
-            stackable, 
-            currentAmount, 
-            maxAmount,
-            tagList);
+            tagList.Object.Tags,
+            itemStackMock.Object);
 
         Assert.Multiple(
             () => Assert.IsAssignableFrom<IItem>(returnedItem),
             () => Assert.NotEqual(Guid.Empty, returnedItem.Id),
             () => Assert.Equal(Name, returnedItem.Name),
-            () => Assert.Equal(stackable, returnedItem.Stackable),
-            () => Assert.Equal(currentAmount, returnedItem.Stack),
-            () => Assert.Equal(maxAmount, returnedItem.MaxStack),
-            () => Assert.Equal(tagList, returnedItem.TagList.Tags));
+            () => Assert.Equivalent(itemStackMock.Object.Current, returnedItem.ItemStack!.Current),
+            () => Assert.Equivalent(itemStackMock.Object.Max, returnedItem.ItemStack!.Max),
+            () => Assert.Equal(tagList.Object.Tags, returnedItem.TagList.Tags));
     }
 }

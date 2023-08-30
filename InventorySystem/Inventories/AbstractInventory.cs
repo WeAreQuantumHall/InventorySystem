@@ -20,25 +20,22 @@ namespace InventorySystem.Inventories
         }
 
         private IInventoryService InventoryService { get; }
-        
         protected Dictionary<Guid, IItem> Items { get; set; } = new Dictionary<Guid, IItem>();
-        
         public Guid Id { get; }
         public string Name { get; private set; }
         public int Capacity { get; }
         
         public virtual int Count => Items.Count;
+        public virtual bool IsAtCapacity => Capacity > 0 && Count == Capacity;
         public virtual void SetName(string name) => Name = name;
 
-        public virtual bool IsAtCapacity => Capacity > 0 && Count == Capacity;
-        
         public virtual IInventoryActionResult TryAddItem(IItem item)
         {
             var (action, returnedItem) = InventoryService.TryAddItem(Items, item, IsAtCapacity); 
             return new InventoryActionResult(action, returnedItem);
         }
  
-        public virtual IInventoryActionResult TryGetItem(Guid id) 
+        public virtual IInventoryActionResult TryGetItem(Guid id)
         {
             var (action, returnedItem) = InventoryService.TryGetItem(Items, id);
             return new InventoryActionResult(action, returnedItem);
@@ -67,6 +64,5 @@ namespace InventorySystem.Inventories
             var (action, result) = InventoryService.TrySplitItemStack(Items, id, splitAmount);
             return new InventoryActionResult(action, result);
         }
-
     }
 }

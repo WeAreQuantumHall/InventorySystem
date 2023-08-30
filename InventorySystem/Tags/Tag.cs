@@ -10,11 +10,10 @@ namespace InventorySystem.Tags
             Name = name;
             Identifier = identifier;
         }
-
-        public override string ToString() => Name;
         
-
         public Guid Identifier { get; }
         public string Name { get; }
+
+        public override string ToString() => Name;
     }
 }

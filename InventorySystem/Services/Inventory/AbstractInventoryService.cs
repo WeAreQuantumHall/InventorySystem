@@ -67,12 +67,14 @@ namespace InventorySystem.Services.Inventory
             int splitAmount)
         {
             if (!items.TryGetValue(key, out var item)) return (ItemNotFound, null);
+
+            if (item.ItemStack == null || !item.ItemStack.TrySplitStack(splitAmount)) 
+                return (ItemStackNotSplit, null);
             
-            var splitItem = item.SplitStack(splitAmount);
-            return splitItem == item 
-                ? (ItemStackNotSplit, null)
-                : (ItemStackSplit, splitItem);
+            var splitItem = item.Copy();
+            splitItem.ItemStack!.SetStack(splitAmount);
+
+            return (ItemStackSplit, splitItem);
         }
-        
     }
 }

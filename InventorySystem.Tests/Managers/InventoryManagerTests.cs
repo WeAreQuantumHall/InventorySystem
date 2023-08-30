@@ -71,7 +71,7 @@ public class InventoryManagerTests
     public void Can_move_item_between_inventories_when_both_inventories_and_the_item_are_present()
     {
         var itemToMoveId = Guid.NewGuid();
-        var itemToMoveMock = MockItemData.GetItemMock(false, 1, 1);
+        var itemToMoveMock = MockItemData.GetItemMock();
 
         _inventoryServiceMock.Setup(service => service.TryRemoveItem(
                 It.IsAny<IDictionary<Guid, IItem>>(),

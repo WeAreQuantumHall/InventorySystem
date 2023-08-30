@@ -1,5 +1,6 @@
 ﻿using System;
 using InventorySystem.Abstractions.Items;
+using InventorySystem.Abstractions.Tags;
 using Moq;
 
 namespace InventorySystem.Tests.Data;
@@ -8,21 +9,37 @@ public static class MockItemData
 {
     private const string ItemName = "test-item-name";
 
-    public static Mock<IItem> GetItemMock(bool stackable, int stack = 0, int maxStack = 0)
+    public static Mock<IItem> GetItemMock(
+        Mock<ITagList>? tagList = null,
+        Mock<IItemStack>? itemStack = null)
     {
         var itemMock = new Mock<IItem>();
-        itemMock.Setup(item => item.Id)
+        itemMock
+            .Setup(item => item.Id)
             .Returns(Guid.NewGuid());
-        itemMock.Setup(item => item.Name)
+        itemMock
+            .Setup(item => item.Name)
             .Returns(ItemName);
-        itemMock.Setup(item => item.Stackable)
-            .Returns(stackable);
-        itemMock.Setup(item => item.Stack)
-            .Returns(stack);
-        itemMock.Setup(item => item.MaxStack)
-            .Returns(maxStack);
-        itemMock.Setup(item => item.CanBeStackedOn)
-            .Returns(stackable && stack < maxStack);
+
+        if (itemStack != null)
+        {
+            itemMock
+                .Setup(item => item.ItemStack)
+                .Returns(itemStack.Object);
+        }
+
+        if (tagList == null)
+        {
+            tagList = new Mock<ITagList>();
+            tagList
+                .Setup(tl => tl.Tags)
+                .Returns(Array.Empty<ITag>());
+        }
+        
+        itemMock
+            .Setup(item => item.TagList)
+            .Returns(tagList.Object);
+        
         return itemMock;
     }
 }
