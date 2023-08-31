@@ -10,7 +10,8 @@ namespace InventorySystem.Managers
 {
     public class InventoryManager
     {
-        private readonly Dictionary<Guid, IInventory> _inventories = new Dictionary<Guid, IInventory>();
+        private readonly Dictionary<Guid, IInventory> _inventories = new Dictionary<Guid, IInventory>(50);
+        private readonly List<Guid> _activeInventories = new List<Guid>(20);
 
         public bool TryGetInventory(Guid id, out IInventory inventory)
             => _inventories.TryGetValue(id, out inventory);
@@ -37,5 +38,15 @@ namespace InventorySystem.Managers
 
             return new InventoryActionResult(ItemMovedBetweenInventories);
         }
+
+       public bool ActivateInventory(Guid id)
+       {
+           if (!_inventories.ContainsKey(id)) return false;
+           if (_activeInventories.Contains(id)) return true;
+           _activeInventories.Add(id);
+           return true;
+       }
+
+       public bool DeactivateInventory(Guid id) => _activeInventories.Remove(id);
     }
 }

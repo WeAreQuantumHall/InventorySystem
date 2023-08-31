@@ -154,4 +154,57 @@ public class InventoryManagerTests
         
         Assert.Equivalent(expectedItemMoveActionResult, itemMovedActionResult);
     }
+
+    [HappyPath]
+    public void Can_activate_inventory_when_inventory_is_present_and_will_activate_inventory()
+    {
+        var inventoryManager = new InventoryManager();
+        var inventoryId = inventoryManager.CreateInventory(_inventoryServiceMock.Object, InventoryName, 0);
+        var isActivated = inventoryManager.ActivateInventory(inventoryId);
+        
+        Assert.True(isActivated);
+    }
+    
+    
+    [HappyPath]
+    public void Can_activate_inventory_when_inventory_is_already_active()
+    {
+        var inventoryManager = new InventoryManager();
+        var inventoryId = inventoryManager.CreateInventory(_inventoryServiceMock.Object, InventoryName, 0);
+        inventoryManager.ActivateInventory(inventoryId);
+        var isActivated = inventoryManager.ActivateInventory(inventoryId);
+        
+        Assert.True(isActivated);
+    }
+
+    [UnhappyPath]
+    public void Cannot_activate_inventory_when_inventory_is_not_present()
+    {
+        var inventoryManager = new InventoryManager();
+        var inventoryId = Guid.NewGuid();
+        var isActivated = inventoryManager.ActivateInventory(inventoryId);
+        
+        Assert.False(isActivated);
+    }
+
+    [HappyPath]
+    public void Can_deactivate_inventory_if_inventory_is_active()
+    {
+        var inventoryManager = new InventoryManager();
+        var inventoryId = inventoryManager.CreateInventory(_inventoryServiceMock.Object, InventoryName, 0);
+        inventoryManager.ActivateInventory(inventoryId);
+        var isDeactivated = inventoryManager.DeactivateInventory(inventoryId);
+        
+        Assert.True(isDeactivated);
+    }
+    
+    [UnhappyPath]
+    public void Cannot_deactivate_inventory_if_inventory_is_not_active()
+    {
+        var inventoryManager = new InventoryManager();
+        var inventoryId = Guid.NewGuid();
+        var isDeactivated = inventoryManager.DeactivateInventory(inventoryId);
+        
+        Assert.False(isDeactivated);
+    }
 }
